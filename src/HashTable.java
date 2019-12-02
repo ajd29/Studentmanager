@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+
 
 /**
  * Class to represent entire hash table
@@ -13,10 +13,10 @@ public class HashTable<K, V> {
     // bucketArray is used to store array of chains
     private HashNode<K, V>[] bucketArray;
 
-    // Current capacity of array list
+    // Current capacity of array
     private int numBuckets;
 
-    // Current size of array list
+    // Current size of array
     private int size;
 
 
@@ -24,13 +24,13 @@ public class HashTable<K, V> {
      * constructor
      */
     public HashTable() {
-        bucketArray = HashNode<K, V>[32]; 
-        numBuckets = 10;
+        bucketArray = new HashNode[32];
+        numBuckets = 32;
         size = 0;
 
         // Create empty chains
         for (int i = 0; i < numBuckets; i++)
-            bucketArray.add(null);
+            bucketArray[i] = null;
     }
 
 
@@ -57,15 +57,17 @@ public class HashTable<K, V> {
     /**
      * hash function to return index where value goes
      * 
-     * @param key the key
+     * @param key
+     *            the key
      * 
      * @return long the index
      */
-    public long sfold(K key) {
+    public int sfold(K key) {
         int intLength = ((String)key).length() / 4;
-        long sum = 0;
+        int sum = 0;
         for (int j = 0; j < intLength; j++) {
-            char c[] = ((String)key).substring(j * 4, (j * 4) + 4).toCharArray();
+            char c[] = ((String)key).substring(j * 4, (j * 4) + 4)
+                .toCharArray();
             long mult = 1;
             for (int k = 0; k < c.length; k++) {
                 sum += c[k] * mult;
@@ -94,7 +96,7 @@ public class HashTable<K, V> {
      */
     public V remove(K key) {
         // Apply hash function to find index for given key
-        long bucketIndex = sfold(key);
+        int bucketIndex = sfold(key);
 
         // Get head of chain
         HashNode<K, V> head = bucketArray[bucketIndex];
@@ -131,7 +133,7 @@ public class HashTable<K, V> {
     // Returns value for a key
     public V get(K key) {
         // Find head of chain for given key
-        long bucketIndex = sfold(key);
+        int bucketIndex = sfold(key);
         HashNode<K, V> head = bucketArray[bucketIndex];
 
         // Search key in chain
@@ -149,7 +151,7 @@ public class HashTable<K, V> {
     // Adds a key value pair to hash
     public void add(K key, V value) {
         // Find head of chain for given key
-        long bucketIndex = sfold(key);
+        int bucketIndex = sfold(key);
         HashNode<K, V> head = bucketArray[bucketIndex];
 
         // Check if key is already present
@@ -168,11 +170,11 @@ public class HashTable<K, V> {
         newNode.next = head;
         bucketArray[bucketIndex] = newNode;
 
-        // If load factor goes beyond threshold, then
+        // If bucket is full,
         // double hash table size
-        if ((1.0 * size) / numBuckets >= 0.7) {
+        if (this.isFull()) {
             HashNode<K, V>[] temp = bucketArray;
-            bucketArray = new HashNode<K, V>[32];
+            bucketArray = new HashNode[32];
             numBuckets = 2 * numBuckets;
             size = 0;
             for (int i = 0; i < numBuckets; i++)
@@ -186,6 +188,16 @@ public class HashTable<K, V> {
             }
         }
 
+    }
+
+
+    /**
+     * sees if bucket is full
+     * 
+     * @return boolean true or false
+     */
+    public boolean isFull() {
+        return size == 32;
     }
 
 
