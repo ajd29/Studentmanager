@@ -1,9 +1,10 @@
+import student.TestCase;
 /**
  * test class for hash table
  * @author colle
  *
  */
-public class HashTableTest extends student.TestCase {
+public class HashTableTest extends TestCase {
 
     //hash table to test with
     private HashTable table;
@@ -36,6 +37,8 @@ public class HashTableTest extends student.TestCase {
     public void testadd() {
         table.add("cat", 4);
         assertEquals(1, table.size());
+        assertEquals(4, table.get("cat"));
+        
     }
 
 

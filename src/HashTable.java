@@ -10,10 +10,10 @@
  * @param <V>
  */
 public class HashTable<K, V> {
-    // bucketArray is used to store array of chains
+    // bucketArray is used to store array of buckets
     private HashNode<K, V>[] bucketArray;
 
-    // Current capacity of array
+    // Current capacity of array, 32 spots in each bucket
     private int numBuckets;
 
     // Current size of array
@@ -148,13 +148,13 @@ public class HashTable<K, V> {
     }
 
 
-    // Adds a key value pair to hash
+    // Adds a key value pair to the table
     public void add(K key, V value) {
         // Find head of chain for given key
         int bucketIndex = sfold(key);
         HashNode<K, V> head = bucketArray[bucketIndex];
 
-        // Check if key is already present
+        // Check if spot is already filled, then move to next node if it is full
         while (head != null) {
             if (head.key.equals(key)) {
                 head.value = value;
@@ -163,7 +163,8 @@ public class HashTable<K, V> {
             head = head.next;
         }
 
-        // Insert key in chain
+        
+        // Insert key in bucket
         size++;
         head = bucketArray[bucketIndex];
         HashNode<K, V> newNode = new HashNode<K, V>(key, value);
