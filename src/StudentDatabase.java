@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class StudentDatabase
 {
     // HashTable object
-    private HashTable hash = new HashTable();
+    private HashTable hash = new HashTable<String, MemHandle>();
 
     // true if update command just called
     private boolean update;
@@ -80,11 +80,17 @@ public class StudentDatabase
         // insert student to hash
         // set current student
         // record the length of full name and essay
+        int length = fullName.length();
+        
+        //might need another object instead of memory handle?? something to hold both memory handles
+        //need to add position of name, using 0 as placeholder
+        MemHandle name = new MemHandle(0, length);
+        hash.add(pid, length);
 
         // use length to allocate a buffer into which
         // the record can be read and then store it into
         // the memory file and receive corresponding handles
-        int length = fullName.length();
+        
         // byte buffer??
     }
 
@@ -94,12 +100,26 @@ public class StudentDatabase
      * will be inserted
      * @param fullName to update name to
      */
-    public void update(String fullName) {
+    public void update(String pid, String fullName) {
         // if hash.search PID is null
             // insert into hash
-        // else if it's not null
-            // update with full name
-        update = true;
+        
+        int length = fullName.length();
+        //again, need position
+        MemHandle name = new MemHandle(0, length);
+        
+        if (hash.get(pid)== null) {
+            
+            hash.add(pid, name);
+        }
+     // else if it's not null
+        // update with full name
+        else {
+            hash.update(pid, name);
+            update = true;
+        }
+        
+        
         // set current Student
     }
 
