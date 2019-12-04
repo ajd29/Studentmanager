@@ -5,7 +5,7 @@
  *  @author colle57
  *  @version Nov 27, 2019
  */
-public class MemHandle
+public class MemoryHandle
 {
     private int position;
     private int length;
@@ -17,7 +17,7 @@ public class MemHandle
      * @param pos in file for associated record
      * @param len of associated record
      */
-    public MemHandle(int pos, int len) {
+    public MemoryHandle(int pos, int len) {
         position = pos;
         length = len;
     }

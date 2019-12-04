@@ -23,7 +23,6 @@ public class Reader
         database = new StudentDatabase();
     }
 
-
     /**
      * Reads input file
      *
@@ -31,7 +30,7 @@ public class Reader
      *            of file to read in
      * @throws FileNotFoundException
      */
-    public void readFile(String fileName) throws FileNotFoundException
+    public void readCommands(String fileName) throws FileNotFoundException
     {
         File newFile = new File(fileName);
         Scanner file = new Scanner(newFile);

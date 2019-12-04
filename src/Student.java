@@ -35,6 +35,12 @@ public class Student implements Comparable<Student>
        // essay associated with student
        private String essay;
 
+       // memory handle for student's name
+       private MemoryHandle nameHandle;
+
+       // memory handle for student's essay
+       private MemoryHandle essayHandle;
+
 
 
        /**
@@ -84,6 +90,39 @@ public class Student implements Comparable<Student>
            }
        }
 
+       /**
+        * Returns name memory handle
+        * @return MemoryHandle name memory handle
+        */
+       public MemoryHandle getNameHandle() {
+           return nameHandle;
+       }
+
+       /**
+        * Returns essay memory handle
+        * @return MemoryHandle essay memory handle
+        */
+       public MemoryHandle getEssayHandle() {
+           return essayHandle;
+       }
+
+       /**
+        * Set name memory handle
+        * @param pos position
+        * @param len length
+        */
+       public void setNameHandle(int pos, int len) {
+           nameHandle = new MemoryHandle(pos, len);
+       }
+
+       /**
+        * Set essay memory handle
+        * @param pos position
+        * @param len length
+        */
+       public void setEssayHandle(int pos, int len) {
+           essayHandle = new MemoryHandle(pos, len);
+       }
 
        /**
         * Returns student's name in original case it was in input file
