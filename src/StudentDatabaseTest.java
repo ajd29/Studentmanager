@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 
 /**
  *  Tests the methods of the StudentDatabase class
@@ -25,12 +26,15 @@ public class StudentDatabaseTest extends student.TestCase
      */
     public void testLoadStudentData() throws FileNotFoundException {
         setUp();
-        manager.loadStudentData("SampleStudents_p4.csv");
+        manager.loadStudentData("SampleStudents.csv");
         assertEquals(manager.getHash().size(), 15);
         assertEquals(manager.getHash().get("044722015").toString(),
-            "044722015, Burton Frost, score = 0");
-        assertEquals(manager.getHash().get("161829536").toString(),
-            "161829536, Melinda Chen, score = 0");
+            "044722015, Burton Frost at slot ");
+        assertEquals(manager.getHash().get("815012117").toString(),
+            "815012117, Ezekiel Ruiz at slot ");
+        System.out.println(manager.getHash().getArrayString());
+        System.out.println(manager.getHash().getSfoldKey("877002980"));
+        System.out.println(manager.getHash().getSfoldKey("940597271"));
     }
 
     /**

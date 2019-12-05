@@ -11,7 +11,7 @@ public class HashTable<K, V>
     // Array of slots
     private HashNode<K, V>[] array;
 
-    // Current capacity of array, 32 spots in each bucket
+    // Current capacity of array, 32 slots in each bucket
     private int              numBuckets;
 
     // Current size of array
@@ -44,6 +44,22 @@ public class HashTable<K, V>
         }
     }
 
+    /**
+     * Returns hash table array
+     * @return HashNode<K, V> array
+     */
+    public String getArrayString() {
+        String result = "";
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
+                result += "null\n";
+            }
+            else {
+                result += array[i].getValue().toString() + i + "\n";
+            }
+        }
+        return result;
+    }
 
     /**
      * Returns size of the hash table
@@ -56,6 +72,7 @@ public class HashTable<K, V>
     }
 
 
+    
     /**
      * returns if the table is empty or not
      *
@@ -77,6 +94,15 @@ public class HashTable<K, V>
         return (slotsFull == 32);
     }
 
+    /**
+     * Returns the sfold of a key
+     * @param key
+     * @return
+     */
+    public int getSfoldKey(K key) {
+        return sfold(key);
+    }
+    
 
     /**
      * hash function to return index where value goes
@@ -209,23 +235,29 @@ public class HashTable<K, V>
 
             while (head != null && slotsFull < 32)
             {
-                bucketIndex++;
+                if (bucketIndex != array.length - 1) {
+                    bucketIndex++;
+                }
 
                 if (bucketIndex % 32 == 0)
                 {
                     bucketIndex -= 32;
                 }
+                
+                head = head.next;
+                
                 slotsFull++;
             }
             // insert if bucket isn't full
             // took out check for !isBucketFull to make test pass
             // must be that bucket was getting "full" when it shouldn't have
             // fix this
-            size++;
-            head = array[bucketIndex];
-            HashNode<K, V> newNode = new HashNode<K, V>(key, value);
-            newNode.next = head;
-            array[bucketIndex] = newNode;
+            if (!isBucketFull()) {
+                size++;
+                HashNode<K, V> newNode = new HashNode<K, V>(key, value);              
+                newNode.next = head;
+                array[bucketIndex] = newNode;
+            }           
         }
     }
 
@@ -264,5 +296,24 @@ public class HashTable<K, V>
             this.key = key;
             this.value = value;
         }
+        
+        /**
+         * Returns value
+         * @return
+         */
+        public V getValue() {
+            return value;
+        }
+        
+        /**
+         * Returns key
+         * @return K key
+         */
+        public K getKey() {
+            return key;
+        }
+        
+
+        
     }
 }

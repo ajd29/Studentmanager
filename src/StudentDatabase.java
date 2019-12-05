@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
@@ -24,14 +25,19 @@ public class StudentDatabase
 
     // byte position of student record in memory file
     private int position;
+    
+    // Memory manager object
+    private MemoryManager memManager;
 
 
     /**
      * Creates a new StudentDatabase object
      * @param hashSize size of hash table
+     * @throws FileNotFoundException 
      */
-    public StudentDatabase(int hashSize) {
+    public StudentDatabase(int hashSize) throws FileNotFoundException {
         hash = new HashTable<String, Student>(hashSize);
+        memManager = new MemoryManager();
     }
 
     /**
@@ -97,16 +103,20 @@ public class StudentDatabase
      * Insert student into hash table
      * @param pid student's PID
      * @param fullName student's full name
+     * @throws IOException 
      */
-    public void insert(String pid, String fullName) {
+    public void insert(String pid, String fullName) throws IOException {
 
         Student student = new Student(pid, fullName);
 
         if (hash.get(pid) == null) {
-            // set current student
+
             currStudent = student;
             hash.add(pid, student);
-            student.setNameHandle(position, student.getName().length());
+            
+            // send to memory manager to store
+            memManager.storeRecord(student);
+            
             System.out.println(student.getName() + " inserted.");
         }
         else {
@@ -114,17 +124,7 @@ public class StudentDatabase
                 " insertion failed since the pid " + pid +
                 " belongs to another student");
         }
-
         // need to increment position by number of bytes
-
-        // record the length of full name and essay
-        int length = fullName.length();
-
-        // use length to allocate a buffer into which
-        // the record can be read and then store it into
-        // the memory file and receive corresponding handles
-
-        // byte buffer??
     }
 
     /**
@@ -142,6 +142,7 @@ public class StudentDatabase
         if (hash.get(pid) == null) {
             student = new Student(pid, fullName);
             this.insert(pid, fullName);
+            System.out.println(student.getName() + " inserted.");
         }
         // update if there
         else {
@@ -236,5 +237,8 @@ public class StudentDatabase
         // starting byte position and its size, list blocks
         // in order from lowest to highest in order of byte
         // position (same order as they are in freelist)
+        System.out.println(hash.getArrayString());
+        
+        // also print free list 
     }
 }
