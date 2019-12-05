@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class StudentDatabase
 {
     // HashTable object
-    private HashTable hash = new HashTable<String, MemHandle>();
+    private HashTable<String, Student> hash;
 
     // true if update command just called
     private boolean update;
@@ -22,13 +22,24 @@ public class StudentDatabase
     // student of the previous command
     private Student currStudent;
 
+    // byte position of student record in memory file
+    private int position;
+
 
     /**
-     * Creates a new MemoryManager object
-     * @param table to insert, search, and remove from
+     * Creates a new StudentDatabase object
+     * @param hashSize size of hash table
      */
-    public StudentDatabase() {
+    public StudentDatabase(int hashSize) {
+        hash = new HashTable<String, Student>(hashSize);
+    }
 
+    /**
+     * Return hash table
+     * @return HashTable<String, Student> hash table
+     */
+    public HashTable<String, Student> getHash() {
+        return hash;
     }
 
     /**
@@ -37,38 +48,49 @@ public class StudentDatabase
      * @throws FileNotFoundException
      */
     public void loadStudentData(String fileName) throws FileNotFoundException {
-        File file = new File(fileName);
 
+        String warnings = "";
+
+        File file = new File(fileName);
         Scanner in = new Scanner(file);
 
-        while (in.hasNextLine())
-        {
+        while (in.hasNextLine()) {
             String line = in.nextLine().trim();
 
             if (!line.equals(",,,") && !line.equals("") && !line.isEmpty()
-                && !line.equals(",,,,,"))
-            {
+                && !line.equals(",,,,,")) {
                 String[] input = line.split(",\\s*");
 
                 String p = input[0];
-                if (input[0].length() < 9)
-                {
+                if (input[0].length() < 9) {
                     p = "0" + input[0];
                 }
-
                 String first = input[1];
                 String middle = input[2];
                 String last = input[3];
 
-                Student s = new Student(p, first, last);
-                if (middle.length() > 0)
-                {
+                Student s = new Student(p, first + " " + last);
+                if (middle.length() > 0) {
                     s.setMiddleName(middle);
                 }
-                // add to hash once HashTable's insert method is implemented
+
+                if (hash.get(p) != null) {
+                    warnings += "Student " + p + " " + s.getName() +
+                        " is not loaded since a student with the same pid exists.\n";
+                }
+                else {
+                    hash.add(p, s);
+                    s.setNameHandle(position, s.getName().length());
+                }
+
+                if (hash.isBucketFull()) {
+                    warnings += "There is no free place in the bucket to load " +
+                " student " + p + " " + s.getName() + "\n";
+                }
+                // need to increment position by number of bytes
             }
         }
-        System.out.println(fileName + " successfully loaded");
+        System.out.println(fileName + " successfully loaded.\n" + warnings);
     }
 
     /**
@@ -77,20 +99,31 @@ public class StudentDatabase
      * @param fullName student's full name
      */
     public void insert(String pid, String fullName) {
-        // insert student to hash
-        // set current student
+
+        Student student = new Student(pid, fullName);
+
+        if (hash.get(pid) == null) {
+            // set current student
+            currStudent = student;
+            hash.add(pid, student);
+            student.setNameHandle(position, student.getName().length());
+            System.out.println(student.getName() + " inserted.");
+        }
+        else {
+            System.out.println(student.getName() +
+                " insertion failed since the pid " + pid +
+                " belongs to another student");
+        }
+
+        // need to increment position by number of bytes
+
         // record the length of full name and essay
         int length = fullName.length();
-        
-        //might need another object instead of memory handle?? something to hold both memory handles
-        //need to add position of name, using 0 as placeholder
-        MemHandle name = new MemHandle(0, length);
-        hash.add(pid, length);
 
         // use length to allocate a buffer into which
         // the record can be read and then store it into
         // the memory file and receive corresponding handles
-        
+
         // byte buffer??
     }
 
@@ -98,29 +131,28 @@ public class StudentDatabase
      * Update a student's info
      * If PID does not exist, it
      * will be inserted
+     * @param pid student's PID
      * @param fullName to update name to
      */
     public void update(String pid, String fullName) {
-        // if hash.search PID is null
-            // insert into hash
-        
-        int length = fullName.length();
-        //again, need position
-        MemHandle name = new MemHandle(0, length);
-        
-        if (hash.get(pid)== null) {
-            
-            hash.add(pid, name);
+
+        Student student;
+
+        // insert into hash if not there
+        if (hash.get(pid) == null) {
+            student = new Student(pid, fullName);
+            this.insert(pid, fullName);
         }
-     // else if it's not null
-        // update with full name
+        // update if there
         else {
-            hash.update(pid, name);
-            update = true;
+            student = hash.get(pid);
+            student.setName(fullName);
+            student.setNameHandle(position, student.getName().length());
+            currStudent = student;
+            System.out.println("Student " + pid +
+                " updated to " + student.getName());
         }
-        
-        
-        // set current Student
+        // need to update position
     }
 
     /**
@@ -128,13 +160,15 @@ public class StudentDatabase
      * @param pid to remove
      */
     public void remove(String pid) {
-        // if hash.search PID is not null
-            // remove from hash
-        // print pid with full name <full name> is removed
-        // from the database.
-        // else print
-        System.out.println(pid +
-            " is not found in the database.");
+
+        if (hash.get(pid) == null) {
+            System.out.println(pid + " is not found in the database");
+        }
+        else {
+            hash.remove(pid);
+            System.out.println(pid + " with full name " +
+        hash.get(pid).getName() + " is removed from the database.");
+        }
     }
 
     /**
@@ -150,18 +184,27 @@ public class StudentDatabase
         // essay associated with that PID
 
         currStudent.setEssay(essay);
+        currStudent.setEssayHandle(position,  essay.length());
+        // increment position
+        System.out.println("essay saved for " + currStudent.getName());
     }
 
     /**
-     * Remove the essay associated with the PID
+     * Remove the essay associated with the sPID
      * @param pid to clear essay of
      */
     public void clear(String pid) {
-        // if hash.search(pid) is null
-        System.out.println(pid + " is not found in the database.");
 
-        // else
-        // print record with <pid> with full name <full name> is cleared.
+        if (hash.get(pid) == null) {
+            System.out.println(pid + " is not found in the database.");
+        }
+        else {
+            hash.get(pid).setEssay("");
+            hash.get(pid).setEssayHandle(position, 0);
+            System.out.println("record with pid " + pid +
+                " with full name " + hash.get(pid).getName() + " is cleared.");
+        }
+        // increment position
     }
 
     /**
@@ -170,8 +213,15 @@ public class StudentDatabase
      * @param pid of student to search for
      */
     public void search(String pid) {
-        // if hash.search(PID) is not null
-            // print <PID> <full name>, then essay on next line
+
+        if (hash.get(pid) == null) {
+            System.out.println("Search Failed: Couldn't find "
+                + "any student with ID " + pid);
+        }
+        else {
+            System.out.println(pid + " " + hash.get(pid).getName()
+                + ":\n" + hash.get(pid).getEssay());
+        }
     }
 
     /**

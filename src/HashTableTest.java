@@ -1,11 +1,11 @@
-import student.TestCase;
+
 /**
  * test class for hash table
  * @author collee57
  * @author ajd29
  *
  */
-public class HashTableTest extends TestCase {
+public class HashTableTest extends student.TestCase {
 
     // hash table to test with
     private HashTable<String, Integer> table;
@@ -23,8 +23,8 @@ public class HashTableTest extends TestCase {
     public void setUp() throws Exception {
         table = new HashTable<String, Integer>(32);
         studentTable = new HashTable<String, Student>(64);
-        s1 = new Student("123", "Sally", "student");
-        s2 = new Student("1234", "s2", "student");
+        s1 = new Student("123", "Sally student");
+        s2 = new Student("1234", "s2 student");
     }
 
     /**
@@ -67,7 +67,27 @@ public class HashTableTest extends TestCase {
     }
 
     /**
+     * Tests isBucketFull()
+     * @throws Exception
+     */
+    public void testIsBucketFull() throws Exception {
+        setUp();
+        assertFalse(table.isBucketFull());
+
+        // fill bucket
+        String pid = "123";
+        for (int i = 0; i < 32; i++) {
+            studentTable.add(pid, s1);
+            pid += "1";
+        }
+        studentTable.add("1245", s1);
+        assertEquals(studentTable.size(), 33);
+        assertTrue(studentTable.isBucketFull());
+    }
+
+    /**
      * Tests isFull()
+     * @throws Exception
      */
     public void testIsFull() throws Exception {
         setUp();
@@ -122,6 +142,10 @@ public class HashTableTest extends TestCase {
             studentTable.add(pid, s1);
             pid += "1";
         }
+        studentTable.add("12", s1);
+        assertEquals(studentTable.size(), 64);
+
+        // add one that exists, doesn't add
         studentTable.add("12", s1);
         assertEquals(studentTable.size(), 64);
     }

@@ -11,16 +11,21 @@ import java.util.Scanner;
  */
 public class Reader
 {
-    // StudentDatabase object
-    private StudentDatabase database;
+    // StudentstuManager object
+    private StudentDatabase stuManager;
+
+    // MemoryManager object
+    private MemoryManager memManager;
 
 
     /**
      * Creates a new reader object
+     * @throws FileNotFoundException
      */
-    public Reader()
+    public Reader(int hashSize) throws FileNotFoundException
     {
-        database = new StudentDatabase();
+        stuManager = new StudentDatabase(hashSize);
+        memManager = new MemoryManager();
     }
 
     /**
@@ -41,13 +46,13 @@ public class Reader
             String[] input = line.split("\\s+");
 
             if (input[0].equals("loadStudentData")) {
-                database.loadStudentData(input[1]);
+                stuManager.loadStudentData(input[1]);
             }
             else if (input[0].equals("insert")) {
-                database.insert(input[1], input[2]);
+                stuManager.insert(input[1], input[2]);
             }
             else if (input[0].equals("update")) {
-                database.update(input[1]);
+                stuManager.update(input[1], input[2]);
             }
             else if (input[0].equals("essay")) {
 
@@ -67,19 +72,19 @@ public class Reader
 
                 int essayLength = essayBytes.length;
 
-                database.essay(essay);
+                stuManager.essay(essay);
             }
             else if (input[0].equals("remove")) {
-                database.remove(input[1]);
+                stuManager.remove(input[1]);
             }
             else if (input[0].equals("search")) {
-                database.search(input[1]);
+                stuManager.search(input[1]);
             }
             else if (input[0].equals("clear")) {
-                database.remove(input[1]);
+                stuManager.remove(input[1]);
             }
             else if (input[0].equals("print")) {
-                database.print();
+                stuManager.print();
             }
         }
     }

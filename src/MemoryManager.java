@@ -51,4 +51,11 @@ public class MemoryManager
         nLength = record.getName().length();
         eLength = record.getEssay().length();
     }
+
+    /**
+     * Merge free blocks into one
+     */
+    public void merge() {
+
+    }
 }

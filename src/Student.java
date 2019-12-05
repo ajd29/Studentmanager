@@ -26,12 +26,6 @@ public class Student implements Comparable<Student>
        // student's grade
        private String grade;
 
-       // Student's first name before case is standardized
-       private String ogFName;
-
-       // Student's last name before case is standardized
-       private String ogLName;
-
        // essay associated with student
        private String essay;
 
@@ -46,15 +40,10 @@ public class Student implements Comparable<Student>
        /**
         * parameterized constructor for student object
         * @param p PID
-        *
-        * @param fName
-        *            first name
-        * @param lName
-        *            last name
+        * @param name full name of student
         */
-       public Student(String p, String fName, String lName)
+       public Student(String p, String name)
        {
-
            firstName = "";
            lastName = "";
            score = 0;
@@ -63,30 +52,39 @@ public class Student implements Comparable<Student>
            middleName = "";
            essay = "";
 
-           if (fName.length() == 1)
-           {
-               firstName = fName.toUpperCase();
-               ogFName = fName;
+           String[] names = name.split(" ");
+
+           if (names.length > 0) {
+               firstName = names[0];
+           }
+           if (names.length > 2) {
+               middleName = names[1];
+               lastName = names[2];
+           }
+           if (names.length == 2) {
+               lastName = names[1];
            }
 
-           if (lName.length() == 1)
+           if (firstName.length() == 1)
            {
-               lastName = lName.toUpperCase();
-               ogLName = lName;
+               firstName = firstName.toUpperCase();
            }
 
-           if (fName.length() > 1)
+           if (lastName.length() == 1)
            {
-               firstName = fName.substring(0, 1).toUpperCase()
-                   + fName.substring(1).toLowerCase();
-               ogFName = fName;
+               lastName = lastName.toUpperCase();
            }
 
-           if (lName.length() > 1)
+           if (firstName.length() > 1)
            {
-               lastName = lName.substring(0, 1).toUpperCase()
-                   + lName.substring(1).toLowerCase();
-               ogLName = lName;
+               firstName = firstName.substring(0, 1).toUpperCase()
+                   + firstName.substring(1).toLowerCase();
+           }
+
+           if (lastName.length() > 1)
+           {
+               lastName = lastName.substring(0, 1).toUpperCase()
+                   + lastName.substring(1).toLowerCase();
            }
        }
 
@@ -125,17 +123,6 @@ public class Student implements Comparable<Student>
        }
 
        /**
-        * Returns student's name in original case it was in input file
-        *
-        * @return String of original input name
-        */
-       public String getOgName()
-       {
-           return ogFName + " " + ogLName;
-       }
-
-
-       /**
         * Returns first name
         *
         * @return String first name
@@ -144,7 +131,6 @@ public class Student implements Comparable<Student>
        {
            return firstName;
        }
-
 
        /**
         * Returns middle name
@@ -156,7 +142,6 @@ public class Student implements Comparable<Student>
            return middleName;
        }
 
-
        /**
         * Returns last name
         *
@@ -167,7 +152,6 @@ public class Student implements Comparable<Student>
            return lastName;
        }
 
-
        /**
         * Returns string of full name
         *
@@ -176,6 +160,24 @@ public class Student implements Comparable<Student>
        public String getName()
        {
            return firstName + " " + lastName;
+       }
+
+       /**
+        * Sets student's name
+        * @param newName to set name to
+        */
+       public void setName(String newName) {
+           String[] name = newName.split(" ");
+           if (name.length > 0) {
+               firstName = name[0];
+           }
+           if (name.length > 2) {
+               middleName = name[1];
+               lastName = name[2];
+           }
+           if (name.length == 2) {
+               lastName = name[1];
+           }
        }
 
        /**
@@ -204,7 +206,6 @@ public class Student implements Comparable<Student>
            return score;
        }
 
-
        /**
         * Returns the student's PID
         *
@@ -214,7 +215,6 @@ public class Student implements Comparable<Student>
        {
            return pID;
        }
-
 
        /**
         * setter for score
@@ -228,9 +228,7 @@ public class Student implements Comparable<Student>
            {
                score = num;
            }
-
        }
-
 
        /**
         * getter for the Student's grade

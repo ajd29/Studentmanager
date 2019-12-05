@@ -22,7 +22,7 @@ public class Studentmanager
     public void main(String commandFile, int hashSize,
         String memoryFile) throws FileNotFoundException {
 
-        read = new Reader();
+        read = new Reader(hashSize);
         read.readCommands(commandFile);
     }
 
