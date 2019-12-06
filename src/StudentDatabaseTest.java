@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -12,12 +13,16 @@ public class StudentDatabaseTest extends student.TestCase
 {
     // StudentDatabase object
     private StudentDatabase manager;
-
+    
+    
+    
     /**
      * Set up is called before every test
+     * @throws FileNotFoundException 
      */
-    public void setUp() {
+    public void setUp() throws FileNotFoundException {
         manager = new StudentDatabase(32);
+        
     }
 
     /**
@@ -26,6 +31,7 @@ public class StudentDatabaseTest extends student.TestCase
      */
     public void testLoadStudentData() throws FileNotFoundException {
         setUp();
+        System.out.println("test load:");
         manager.loadStudentData("SampleStudents.csv");
         assertEquals(manager.getHash().size(), 15);
         assertEquals(manager.getHash().get("044722015").toString(),
@@ -39,16 +45,35 @@ public class StudentDatabaseTest extends student.TestCase
 
     /**
      * Tests insert()
+     * @throws IOException 
      */
-    public void testInsert() {
-
+    public void testInsert() throws IOException {
+        System.out.println("test insert:");
+        manager.loadStudentData("SampleStudents.csv");
+        
+        //should be 13 since 2 are missing but is 15
+        assertEquals(15, manager.getHash().size());
+        manager.insert("123", "Colleen Schmidt");
+        manager.search("123");
+        
+        manager.insert("1234", "Allison DeSantis");
+        //should not be able to find
+        manager.search("12");
+        System.out.println(manager.getHash().getArrayString());
+        
+        assertEquals(17, manager.getHash().size());
     }
 
     /**
      * Tests search()
+     * @throws FileNotFoundException 
      */
-    public void testSearch() {
+    public void testSearch() throws FileNotFoundException {
 
+        System.out.println("test search:");
+        manager.loadStudentData("SampleStudents.csv");
+        manager.search("044722015");
+        System.out.println(manager.getHash().getArrayString());
     }
 
     /**
