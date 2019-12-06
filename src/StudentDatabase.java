@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 /**
@@ -17,15 +16,15 @@ public class StudentDatabase
     // HashTable object
     private HashTable<String, Student> hash;
 
-    // true if update command just called
-    private boolean update;
+    // true if successful insert or update called
+    private boolean essayValid;
 
     // student of the previous command
     private Student currStudent;
 
     // byte position of student record in memory file
     private int position;
-    
+
     // Memory manager object
     private MemoryManager memManager;
 
@@ -33,7 +32,7 @@ public class StudentDatabase
     /**
      * Creates a new StudentDatabase object
      * @param hashSize size of hash table
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     public StudentDatabase(int hashSize) throws FileNotFoundException {
         hash = new HashTable<String, Student>(hashSize);
@@ -103,20 +102,23 @@ public class StudentDatabase
      * Insert student into hash table
      * @param pid student's PID
      * @param fullName student's full name
-     * @throws IOException 
+     * @throws IOException
      */
     public void insert(String pid, String fullName) throws IOException {
 
         Student student = new Student(pid, fullName);
 
+        // if student isn't already in hash table
         if (hash.get(pid) == null) {
 
             currStudent = student;
             hash.add(pid, student);
-            
+
             // send to memory manager to store
             memManager.storeRecord(student);
-            
+
+            essayValid = true;
+
             System.out.println(student.getName() + " inserted.");
         }
         else {
@@ -124,7 +126,6 @@ public class StudentDatabase
                 " insertion failed since the pid " + pid +
                 " belongs to another student");
         }
-        // need to increment position by number of bytes
     }
 
     /**
@@ -133,8 +134,9 @@ public class StudentDatabase
      * will be inserted
      * @param pid student's PID
      * @param fullName to update name to
+     * @throws IOException
      */
-    public void update(String pid, String fullName) {
+    public void update(String pid, String fullName) throws IOException {
 
         Student student;
 
@@ -142,18 +144,21 @@ public class StudentDatabase
         if (hash.get(pid) == null) {
             student = new Student(pid, fullName);
             this.insert(pid, fullName);
+            memManager.storeRecord(student);
+            currStudent = student;
             System.out.println(student.getName() + " inserted.");
         }
-        // update if there
-        else {
+        // update if there and name is different
+        else if (!fullName.equals(hash.get(pid).getName())) {
             student = hash.get(pid);
             student.setName(fullName);
-            student.setNameHandle(position, student.getName().length());
+            memManager.updateName(student);
             currStudent = student;
             System.out.println("Student " + pid +
                 " updated to " + student.getName());
         }
-        // need to update position
+
+        essayValid = true;
     }
 
     /**
@@ -177,24 +182,24 @@ public class StudentDatabase
      * or update command; the corresponding text will
      * be associated with the PID of the previous command
      * and stored as a byte array following UTF-8 encoding
+     * @param essay to set and store for student
+     * @throws IOException
      *
      */
-    public void essay(String essay) {
-        // if essay commands follow update
-        // the message will replace the previous
-        // essay associated with that PID
-
-        currStudent.setEssay(essay);
-        currStudent.setEssayHandle(position,  essay.length());
-        // increment position
-        System.out.println("essay saved for " + currStudent.getName());
+    public void essay(String essay) throws IOException {
+        if (essayValid) {
+            currStudent.setEssay(essay);
+            memManager.updateEssay(currStudent);
+            System.out.println("essay saved for " + currStudent.getName());
+        }
     }
 
     /**
      * Remove the essay associated with the sPID
      * @param pid to clear essay of
+     * @throws IOException
      */
-    public void clear(String pid) {
+    public void clear(String pid) throws IOException {
 
         if (hash.get(pid) == null) {
             System.out.println(pid + " is not found in the database.");
@@ -202,10 +207,10 @@ public class StudentDatabase
         else {
             hash.get(pid).setEssay("");
             hash.get(pid).setEssayHandle(position, 0);
+            memManager.clearEssay(hash.get(pid));
             System.out.println("record with pid " + pid +
                 " with full name " + hash.get(pid).getName() + " is cleared.");
         }
-        // increment position
     }
 
     /**
@@ -238,7 +243,7 @@ public class StudentDatabase
         // in order from lowest to highest in order of byte
         // position (same order as they are in freelist)
         System.out.println(hash.getArrayString());
-        
-        // also print free list 
+
+        // also print free list
     }
 }
