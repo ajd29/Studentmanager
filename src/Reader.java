@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -14,28 +15,29 @@ public class Reader
     // StudentstuManager object
     private StudentDatabase stuManager;
 
-    // MemoryManager object
-    private MemoryManager memManager;
-
-
     /**
      * Creates a new reader object
+     * @param hashSize size of hash table
+     *
      * @throws FileNotFoundException
      */
-    public Reader(int hashSize) throws FileNotFoundException
+    public Reader(int hashSize)
+        throws FileNotFoundException
     {
         stuManager = new StudentDatabase(hashSize);
-        memManager = new MemoryManager();
+
     }
+
 
     /**
      * Reads input file
      *
      * @param fileName
      *            of file to read in
-     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public void readCommands(String fileName) throws FileNotFoundException
+    public void readCommands(String fileName)
+        throws IOException
     {
         File newFile = new File(fileName);
         Scanner file = new Scanner(newFile);
@@ -45,20 +47,22 @@ public class Reader
             String line = file.nextLine().trim();
             String[] input = line.split("\\s+");
 
-            if (input[0].equals("loadStudentData")) {
+            if (input[0].equals("loadstudentdata"))
+            {
                 stuManager.loadStudentData(input[1]);
             }
-            else if (input[0].equals("insert")) {
-                stuManager.insert(input[1], input[2]);
+            else if (input[0].equals("insert"))
+            {
+                stuManager.insert(input[1], input[2], input[3]);
             }
-            else if (input[0].equals("update")) {
-                stuManager.update(input[1], input[2]);
+            else if (input[0].equals("update"))
+            {
+                stuManager.update(input[1], input[2], input[3]);
             }
-            else if (input[0].equals("essay")) {
-
+            else if (input[0].equals("essay"))
+            {
                 String essayLine = file.nextLine().trim();
 
-                // string variable to hold the essay
                 String essay = "";
 
                 // while essay off has not been reached
@@ -66,27 +70,24 @@ public class Reader
                     essay += essayLine;
                     essayLine = file.nextLine().trim();
                 }
-
-                // save essay in byte array
-                byte[] essayBytes = essay.getBytes();
-
-                int essayLength = essayBytes.length;
-
                 stuManager.essay(essay);
             }
-            else if (input[0].equals("remove")) {
+            else if (input[0].equals("remove"))
+            {
                 stuManager.remove(input[1]);
             }
-            else if (input[0].equals("search")) {
+            else if (input[0].equals("search"))
+            {
                 stuManager.search(input[1]);
             }
-            else if (input[0].equals("clear")) {
-                stuManager.remove(input[1]);
+            else if (input[0].equals("clear"))
+            {
+                stuManager.clear(input[1]);
             }
-            else if (input[0].equals("print")) {
+            else if (input[0].equals("print"))
+            {
                 stuManager.print();
             }
         }
     }
-
 }
