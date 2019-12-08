@@ -11,14 +11,11 @@ public class HashTable<K, V>
     // Array of slots
     private HashNode<K, V>[] array;
 
-    // Current capacity of array, 32 slots in each bucket
-    private int              numBuckets;
-
     // Current size of array
     private int              size;
 
     // hash table capacity
-    private int              capacity;
+    private long              capacity;
 
     // slotsFull counts full slots in bucket
     private int              slotsFull;
@@ -34,14 +31,29 @@ public class HashTable<K, V>
     {
         capacity = hashSize;
         array = new HashNode[hashSize];
-        numBuckets = 32;
         size = 0;
 
         // Create empty chains
-        for (int i = 0; i < numBuckets; i++)
+        for (int i = 0; i < hashSize; i++)
         {
             array[i] = null;
         }
+    }
+
+    /**
+     * Returns index in array for a key
+     * @param key of element to retrieve index of
+     * @return int index of element with key
+     */
+    public int getIndex(K key) {
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != null &&
+                array[i].key.equals(key)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -51,11 +63,8 @@ public class HashTable<K, V>
     public String getArrayString() {
         String result = "";
         for (int i = 0; i < array.length; i++) {
-            if (array[i] == null) {
-                result += "null\n";
-            }
-            else {
-                result += array[i].getValue().toString() + i + "\n";
+            if (array[i] != null) {
+                result += "\n" + array[i].getValue() + i;
             }
         }
         return result;
@@ -72,7 +81,6 @@ public class HashTable<K, V>
     }
 
 
-    
     /**
      * returns if the table is empty or not
      *
@@ -82,7 +90,6 @@ public class HashTable<K, V>
     {
         return size() == 0;
     }
-
 
     /**
      * Return true if bucket is full
@@ -95,14 +102,13 @@ public class HashTable<K, V>
     }
 
     /**
-     * Returns the sfold of a key
+     * Returns the integer that sfold returns for a key
      * @param key
-     * @return
+     * @return long that sfold function returns for key
      */
-    public int getSfoldKey(K key) {
+    public long getSfoldKey(K key) {
         return sfold(key);
     }
-    
 
     /**
      * hash function to return index where value goes
@@ -111,10 +117,10 @@ public class HashTable<K, V>
      *            the key
      * @return long the index
      */
-    private int sfold(K key)
+    private long sfold(K key)
     {
         int intLength = ((String)key).length() / 4;
-        int sum = 0;
+        long sum = 0;
         for (int j = 0; j < intLength; j++)
         {
             char c[] =
@@ -134,11 +140,9 @@ public class HashTable<K, V>
             sum += c[k] * mult;
             mult *= 256;
         }
-
         sum = (sum * sum) >> 8;
         return (Math.abs(sum) % capacity);
     }
-
 
     /**
      * removes an element
@@ -150,10 +154,10 @@ public class HashTable<K, V>
     public V remove(K key)
     {
         // Apply hash function to find index for given key
-        int bucketIndex = sfold(key);
+        long bucketIndex = sfold(key);
 
         // Get head of chain
-        HashNode<K, V> head = array[bucketIndex];
+        HashNode<K, V> head = array[(int)bucketIndex];
 
         // Search for key in its chain
         HashNode<K, V> prev = null;
@@ -183,7 +187,7 @@ public class HashTable<K, V>
         }
         else
         {
-            array[bucketIndex] = head.next;
+            array[(int)bucketIndex] = head.next;
         }
 
         return head.value;
@@ -200,16 +204,19 @@ public class HashTable<K, V>
     public V get(K key)
     {
         // Find head of chain for given key
-        int bucketIndex = sfold(key);
+        long bucketIndex = sfold(key);
 
-        HashNode<K, V> head = array[bucketIndex];
+        HashNode<K, V> head = array[(int)bucketIndex];
 
         // Search key in chain
         while (head != null)
         {
-            if (head.key.equals(key))
+            if (head.key.equals(key)) {
                 return head.value;
-            head = head.next;
+            }
+            //head = head.next;
+            bucketIndex++;
+            head = array[(int)bucketIndex];
         }
 
         // If key not found
@@ -227,11 +234,11 @@ public class HashTable<K, V>
     {
         if (!isFull())
         {
-            int bucketIndex = sfold(key);
+            long bucketIndex = sfold(key);
 
             slotsFull = 0;
 
-            HashNode<K, V> head = array[bucketIndex];
+            HashNode<K, V> head = array[(int)bucketIndex];
 
             while (head != null && slotsFull < 32)
             {
@@ -243,24 +250,20 @@ public class HashTable<K, V>
                 {
                     bucketIndex -= 32;
                 }
-                
-                head = head.next;
-                
+
+                head = array[(int)bucketIndex];
+
                 slotsFull++;
             }
-            // insert if bucket isn't full
-            // took out check for !isBucketFull to make test pass
-            // must be that bucket was getting "full" when it shouldn't have
-            // fix this
+
             if (!isBucketFull()) {
                 size++;
-                HashNode<K, V> newNode = new HashNode<K, V>(key, value);              
+                HashNode<K, V> newNode = new HashNode<K, V>(key, value);
                 newNode.next = head;
-                array[bucketIndex] = newNode;
-            }           
+                array[(int)bucketIndex] = newNode;
+            }
         }
     }
-
 
     /**
      * Checks if hash table is full
@@ -272,14 +275,13 @@ public class HashTable<K, V>
         return (size == capacity);
     }
 
-
     /**
      * Represents a node in the hash table
      *
      * @author collee57
      * @author ajd29
-     * @param <T>
-     * @param <M>
+     * @param <K> generic for key
+     * @param <V> generic for value
      */
     private class HashNode<K, V>
     {
@@ -289,22 +291,21 @@ public class HashTable<K, V>
         // Reference to next node
         HashNode<K, V> next;
 
-
         // Constructor
         public HashNode(K key, V value)
         {
             this.key = key;
             this.value = value;
         }
-        
+
         /**
          * Returns value
-         * @return
+         * @return V value
          */
         public V getValue() {
             return value;
         }
-        
+
         /**
          * Returns key
          * @return K key
@@ -312,8 +313,5 @@ public class HashTable<K, V>
         public K getKey() {
             return key;
         }
-        
-
-        
     }
 }
