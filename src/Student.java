@@ -11,20 +11,11 @@ public class Student implements Comparable<Student>
        // student's first name
        private String firstName;
 
-       // student's middle name
-       private String middleName;
-
        // student's last name
        private String lastName;
 
        // student's PID
        private String   pID;
-
-       // student's score
-       private int    score;
-
-       // student's grade
-       private String grade;
 
        // essay associated with student
        private String essay;
@@ -36,25 +27,22 @@ public class Student implements Comparable<Student>
        private MemoryHandle essayHandle;
 
 
-
        /**
         * parameterized constructor for student object
         * @param p PID
-        * @param name full name of student
+        * @param fName first name
+        * @param lName last name
         */
-       public Student(String p, String name)
+       public Student(String p, String fName, String lName)
        {
-           firstName = "";
-           lastName = "";
-           score = 0;
+           firstName = fName;
+           lastName = lName;
            pID = p;
-           grade = "";
-           middleName = "";
            essay = "";
 
-           String[] names = name.split(" ");
+           //String[] names = name.split("\\s+");
 
-           if (names.length > 0) {
+         /*  if (names.length > 0) {
                firstName = names[0];
            }
            if (names.length > 2) {
@@ -63,7 +51,7 @@ public class Student implements Comparable<Student>
            }
            if (names.length == 2) {
                lastName = names[1];
-           }
+           }*/
 
            if (firstName.length() == 1)
            {
@@ -132,15 +120,6 @@ public class Student implements Comparable<Student>
            return firstName;
        }
 
-       /**
-        * Returns middle name
-        *
-        * @return String middle name
-        */
-       public String getMiddleName()
-       {
-           return middleName;
-       }
 
        /**
         * Returns last name
@@ -164,10 +143,11 @@ public class Student implements Comparable<Student>
 
        /**
         * Sets student's name
-        * @param newName to set name to
+        * @param fName first name
+        * @param lName last name
         */
-       public void setName(String newName) {
-           String[] name = newName.split(" ");
+       public void setName(String fName, String lName) {
+           /*String[] name = newName.split(" ");
            if (name.length > 0) {
                firstName = name[0];
            }
@@ -177,7 +157,9 @@ public class Student implements Comparable<Student>
            }
            if (name.length == 2) {
                lastName = name[1];
-           }
+           }*/
+           firstName = fName;
+           lastName = lName;
        }
 
        /**
@@ -197,16 +179,6 @@ public class Student implements Comparable<Student>
        }
 
        /**
-        * Returns the student's score
-        *
-        * @return in student's score
-        */
-       public int getScore()
-       {
-           return score;
-       }
-
-       /**
         * Returns the student's PID
         *
         * @return String PID
@@ -217,41 +189,6 @@ public class Student implements Comparable<Student>
        }
 
        /**
-        * setter for score
-        *
-        * @param num
-        *            score to set to
-        */
-       public void setScore(int num)
-       {
-           if (num >= 0 && num <= 100)
-           {
-               score = num;
-           }
-       }
-
-       /**
-        * getter for the Student's grade
-        *
-        * @return String representation of student's grade
-        */
-       public String getGrade()
-       {
-           return grade;
-       }
-
-       /**
-        * setter for the Student's grade
-        *
-        * @param str grade
-        */
-       public void setGrade(String str)
-       {
-           grade = str;
-       }
-
-
-       /**
         * setter for id
         *
         * @param i ID
@@ -259,17 +196,6 @@ public class Student implements Comparable<Student>
        public void setPID(String i)
        {
            pID = i;
-       }
-
-
-       /**
-        * Returns middle name
-        *
-        * @param mid middle name
-        */
-       public void setMiddleName(String mid)
-       {
-           middleName = mid;
        }
 
 
@@ -296,14 +222,14 @@ public class Student implements Comparable<Student>
                {
                    return 1;
                }
-               if (this.getMiddleName().compareTo(student.getMiddleName()) < 0)
+              /* if (this.getMiddleName().compareTo(student.getMiddleName()) < 0)
                {
                    return -1;
                }
                if (this.getMiddleName().compareTo(student.getMiddleName()) > 0)
                {
                    return 1;
-               }
+               }*/
                return 0;
 
            }
@@ -347,8 +273,7 @@ public class Student implements Comparable<Student>
         */
        public String toString()
        {
-           return this.getPID() + ", " + this.getFirstName() + " "
-               + this.getLastName() + ", score = " + this.getScore();
+           return this.getName() + " at slot ";
        }
 
    }
