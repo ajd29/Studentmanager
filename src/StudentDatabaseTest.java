@@ -1,6 +1,5 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Tests the methods of the StudentDatabase class
@@ -140,7 +139,7 @@ public class StudentDatabaseTest extends student.TestCase {
         manager.remove("044722015");
         assertEquals(14, manager.getHash().size());
         manager.search("044722015");
-        
+
         manager.remove("815012117");
         assertEquals(13, manager.getHash().size());
 
@@ -202,4 +201,54 @@ public class StudentDatabaseTest extends student.TestCase {
         assertEquals(base.getMem().getMemFile().length(), length);
 
     }
+
+
+    /**
+     * gets the hash table
+     */
+    public void testgetHash() {
+        HashTable<String, Student> tab = manager.getHash();
+        assertEquals(tab, manager.getHash());
+    }
+
+
+    /**
+     * tests the get mem method
+     */
+    public void testgetMem() {
+        MemoryManager mem = manager.getMem();
+        assertEquals(mem, manager.getMem());
+    }
+
+
+    /**
+     * tests the clear method
+     * 
+     * @throws IOException
+     */
+    public void testClear() throws IOException {
+        // print error
+        manager.clear("0");
+
+        manager.insert("12", "Colleen", "Schmidt");
+        // add essay
+        manager.essay("hello world");
+        assertEquals("hello world", manager.getHash().get("12").getEssay());
+
+        // essay should be blank
+        manager.clear("12");
+        assertEquals("", manager.getHash().get("12").getEssay());
+
+    }
+
+
+    /**
+     * tests the print method
+     */
+    public void testprint() {
+        System.out.println("test print:/n");
+        assertEquals(0, manager.getMem().getFreeList().size());
+        manager.print();
+    }
+
 }
