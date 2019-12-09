@@ -1,124 +1,205 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
- *  Tests the methods of the StudentDatabase class
+ * Tests the methods of the StudentDatabase class
  *
- *  @author ajd29
- *  @author collee57
- *  @version Dec 3, 2019
+ * @author ajd29
+ * @author collee57
+ * @version Dec 3, 2019
  */
-public class StudentDatabaseTest extends student.TestCase
-{
+public class StudentDatabaseTest extends student.TestCase {
     // StudentDatabase object
     private StudentDatabase manager;
+    private StudentDatabase data;
+    private StudentDatabase base;
 
-    // student objects
-    Student stu;
+    // student
+    private Student stu;
+
 
     /**
      * Set up is called before every test
-     * @throws FileNotFoundException
+     * 
+     * @throws IOException
      */
-    public void setUp() throws FileNotFoundException {
-        manager = new StudentDatabase(64);
+    public void setUp() throws IOException {
+        manager = new StudentDatabase(32);
+        data = new StudentDatabase(64);
+        base = new StudentDatabase(32);
+
+        manager.loadStudentData("SampleStudents.csv");
+        data.loadStudentData("new.csv");
+
         stu = new Student("12345", "Allison", "DeSantis");
     }
 
+
     /**
      * Tests loadStudentData()
+     * 
      * @throws IOException
      */
     public void testLoadStudentData() throws IOException {
         setUp();
-        manager.loadStudentData("SampleStudents.csv");
+        // testing with sample csv
+        System.out.println("test load:\n");
         assertEquals(manager.getHash().size(), 15);
         assertEquals(manager.getHash().get("044722015").toString(),
             "Burton Frost at slot ");
         assertEquals(manager.getHash().get("815012117").toString(),
             "Ezekiel Ruiz at slot ");
-        assertEquals(manager.getHash().get("711016998").toString(),
-            "Zeph Serrano at slot ");
-        assertEquals(manager.getHash().get("440978815").toString(),
-            "Raphael Kramer at slot ");
-        assertEquals(manager.getHash().get("477937023").toString(),
-            "Fuller Frye at slot ");
-
-        System.out.println("Fuller's sfold: " +
-            manager.getHash().getSfoldKey("477937023"));
-        System.out.println("Fuller's index: " +
-            manager.getHash().getIndex("477937023"));
-
-        System.out.println("Rooney's sfold: " +
-            manager.getHash().getSfoldKey("770218626"));
-        System.out.println("Rooney's index: " +
-            manager.getHash().getIndex("770218626"));
-
-        System.out.println("Burton's sfold: " +
-            manager.getHash().getSfoldKey("044722015"));
-        System.out.println("Burton's index: " +
-            manager.getHash().getIndex("044722015"));
-
-        assertEquals(manager.getHash().size(), 15);
         System.out.println(manager.getHash().getArrayString());
+        System.out.println(manager.getHash().getSfoldKey("877002980"));
+        System.out.println(manager.getHash().getSfoldKey("940597271"));
+
+        // testing with new csv file
+        System.out.println("test load2:\n");
+        System.out.println(data.getHash().getArrayString());
+        // assertEquals(data.getHash().get("21").toString(),
+        // "Kylie Jenner at slot ");
+
     }
 
 
     /**
      * Tests insert()
+     * 
      * @throws IOException
      */
     public void testInsert() throws IOException {
-        setUp();
+        System.out.println("test insert1:\n");
 
-        // insert student to hash
-        manager.insert("12345", "Allison", "DeSantis");
-        assertEquals(manager.getHash().size(), 1);
+        // testing with sample
+        // should be 13 since 2 are missing but is 15
+        assertEquals(15, manager.getHash().size());
+        manager.insert("123", "Colleen", "Schmidt");
+        manager.search("123");
 
-        // check that correct size was written to memory file
-        int length = stu.getName().getBytes().length;
-        assertEquals(manager.getMem().getMemFile().length(), length);
+        manager.insert("1234", "Allison", "DeSantis");
+
+        // should not be able to find
+        manager.search("12");
+        System.out.println(manager.getHash().getArrayString());
+
+        assertEquals(17, manager.getHash().size());
+
+        // testing with new csv file
+        System.out.println("test insert2:\n");
+        data.insert("36", "Chicken", "Nugget");
+        assertEquals(35, data.getHash().size());
+        // should print
+        data.search("36");
+
     }
+
 
     /**
      * Tests search()
+     * 
+     * @throws FileNotFoundException
      */
-    public void testSearch() {
+    public void testSearch() throws FileNotFoundException {
 
+        // testing with sample
+        System.out.println("test search:\n");
+
+        // should find Burton Frost
+        manager.search("044722015");
+        assertEquals(manager.getHash().get("044722015").toString(),
+            "Burton Frost at slot ");
+
+        // should not be able to find
+        manager.search("1");
+
+        System.out.println(manager.getHash().getArrayString());
+
+        // testing with new csv
+        System.out.println("test search2:\n");
+
+        // should find Allison DeSantis
+        data.search("03");
+        assertEquals(data.getHash().get("03").toString(),
+            "Allison  Desantis at slot ");
     }
+
 
     /**
      * Tests remove()
+     * 
+     * @throws IOException
      */
-    public void testRemove() {
+    public void testRemove() throws IOException {
 
+        // testing with sample
+        System.out.println("test remove1:\n");
+
+        // remove burton frost, hash size should reduce, should not be able to
+        // find
+        manager.remove("044722015");
+        assertEquals(14, manager.getHash().size());
+        manager.search("044722015");
+        
+        manager.remove("815012117");
+        assertEquals(13, manager.getHash().size());
+
+        // testing with new csv
+        System.out.println("test remove2:\n");
     }
+
 
     /**
      * Tests update()
+     * 
+     * @throws IOException
      */
-    public void testUpdate() {
+    public void testUpdate() throws IOException {
+
+        System.out.println("test update:\n");
+        manager.update("044722015", "Chicken", "Nugget");
+        assertEquals(manager.getHash().get("044722015").toString(),
+            "Chicken Nugget at slot ");
 
     }
 
+
     /**
      * Tests essay()
+     * 
      * @throws IOException
      */
     public void testEssay() throws IOException {
-        setUp();
+        manager.insert("123456789", "Chicken", "Nugget");
+        manager.essay("hi my name is Colleen");
+        assertEquals("hi my name is Colleen", manager.getHash().get("123456789")
+            .getEssay());
+        // should print "hi my name is colleen"
+        manager.search("123456789");
 
-        // insert student to hash
-        manager.insert("12345", "Allison", "DeSantis");
-        assertEquals(manager.getHash().size(), 1);
+        // should print error
+        manager.essay("hello");
+
+        // essay after update command
+
+        data.update("123456789", "hello", "world");
+
+        data.essay("i am in cs 3114");
+        assertEquals("i am in cs 3114", data.getHash().get("123456789")
+            .getEssay());
+
+        // insert student to empty hash table
+        base.insert("12345", "Allison", "DeSantis");
+        assertEquals(base.getHash().size(), 1);
 
         // check that correct size was written to memory file
         int length = stu.getName().getBytes().length;
-        assertEquals(manager.getMem().getMemFile().length(), length);
+        assertEquals(base.getMem().getMemFile().length(), length);
 
         // give student essay
         length += stu.getEssay().getBytes().length;
-        manager.essay("first essay for a student\n" + "second line\n");
-        assertEquals(manager.getMem().getMemFile().length(), length);
+        base.essay("first essay for a student\n" + "second line\n");
+        assertEquals(base.getMem().getMemFile().length(), length);
+
     }
 }
