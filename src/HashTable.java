@@ -3,23 +3,23 @@
  *
  * @author Colleen Schmidt collee57
  * @author Allison DeSantis ajd29
- * @param <K>
- * @param <V>
+ * @param <K> generic type
+ * @param <V> generic type
+ * @version Dec 10 2019
+ * 
  */
-public class HashTable<K, V>
-{
+public class HashTable<K, V> {
     // Array of slots
     private HashNode<K, V>[] array;
 
     // Current size of array
-    private int              size;
+    private int size;
 
     // hash table capacity
-    private long             capacity;
+    private long capacity;
 
     // slotsFull counts full slots in bucket
-    private int              slotsFull;
-
+    private int slotsFull;
 
 
     /**
@@ -28,31 +28,28 @@ public class HashTable<K, V>
      * @param hashSize
      *            size of hash table
      */
-    public HashTable(int hashSize)
-    {
+    @SuppressWarnings("unchecked")
+    public HashTable(int hashSize) {
         capacity = hashSize;
         array = new HashNode[hashSize];
         size = 0;
 
         // Create empty chains
-        for (int i = 0; i < hashSize; i++)
-        {
+        for (int i = 0; i < hashSize; i++) {
             array[i] = null;
         }
     }
 
+
     /**
-     * Returns hash table array
+     * Returns hash table array in string format
      *
-     * @return HashNode<K, V> array
+     * @return String a list of items in array
      */
-    public String getArrayString()
-    {
+    public String getArrayString() {
         String result = "";
-        for (int i = 0; i < array.length; i++)
-        {
-            if (array[i] != null)
-            {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != null) {
                 result += "\n" + array[i].value + i;
             }
         }
@@ -65,8 +62,7 @@ public class HashTable<K, V>
      *
      * @return int the size
      */
-    public int size()
-    {
+    public int size() {
         return size;
     }
 
@@ -76,8 +72,7 @@ public class HashTable<K, V>
      *
      * @return boolean true or false
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return size() == 0;
     }
 
@@ -87,8 +82,7 @@ public class HashTable<K, V>
      *
      * @return true if bucket is full, false if not full
      */
-    public boolean isBucketFull()
-    {
+    public boolean isBucketFull() {
         return (slotsFull == 32);
     }
 
@@ -96,11 +90,10 @@ public class HashTable<K, V>
     /**
      * Returns the integer that sfold returns for a key
      *
-     * @param key
+     * @param key the key
      * @return long that sfold function returns for key
      */
-    public long getSfoldKey(K key)
-    {
+    public long getSfoldKey(K key) {
         return sfold(key);
     }
 
@@ -112,32 +105,29 @@ public class HashTable<K, V>
      *            the key
      * @return long the index
      */
-    private long sfold(K key)
-    {
+    private long sfold(K key) {
         int intLength = ((String)key).length() / 4;
         long sum = 0;
-        for (int j = 0; j < intLength; j++)
-        {
-            char c[] =
-                ((String)key).substring(j * 4, (j * 4) + 4).toCharArray();
+        for (int j = 0; j < intLength; j++) {
+            char[] c = ((String)key).substring(j * 4, (j * 4) + 4)
+                .toCharArray();
             long mult = 1;
-            for (int k = 0; k < c.length; k++)
-            {
+            for (int k = 0; k < c.length; k++) {
                 sum += c[k] * mult;
                 mult *= 256;
             }
         }
 
-        char c[] = ((String)key).substring(intLength * 4).toCharArray();
+        char[] c = ((String)key).substring(intLength * 4).toCharArray();
         long mult = 1;
-        for (int k = 0; k < c.length; k++)
-        {
+        for (int k = 0; k < c.length; k++) {
             sum += c[k] * mult;
             mult *= 256;
         }
         sum = (sum * sum) >> 8;
         return (Math.abs(sum) % capacity);
     }
+
 
     /**
      * removes an element
@@ -146,8 +136,7 @@ public class HashTable<K, V>
      *            the key associated with value
      * @return V the value
      */
-    public V remove(K key)
-    {
+    public V remove(K key) {
         slotsFull = 0;
 
         // Apply hash function to find index for given key
@@ -155,8 +144,7 @@ public class HashTable<K, V>
 
         HashNode<K, V> head = array[(int)bucketIndex];
 
-        while (!isBucketFull())
-        {
+        while (!isBucketFull()) {
             // If key found, decrease size and return
             if (head != null && head.key.equals(key)) {
                 size--;
@@ -186,8 +174,7 @@ public class HashTable<K, V>
      *            to return value for
      * @return V value of key searched for
      */
-    public V get(K key)
-    {
+    public V get(K key) {
         slotsFull = 0;
 
         // Find head of chain for given key
@@ -196,14 +183,12 @@ public class HashTable<K, V>
         HashNode<K, V> head = array[(int)bucketIndex];
 
         // Search key in chain
-        while (head != null)
-        {
+        while (head != null) {
             // not found
             if (isBucketFull()) {
                 return null;
             }
-            if (head.key.equals(key))
-            {
+            if (head.key.equals(key)) {
                 return head.value;
             }
             // if last slot in bucket go back to 0
@@ -226,35 +211,30 @@ public class HashTable<K, V>
     /**
      * Adds key value pair to hash table
      *
-     * @param key
-     * @param value
+     * @param key the key
+     * @param value associated value
      */
-    public void add(K key, V value)
-    {
+    public void add(K key, V value) {
         long bucketIndex = sfold(key);
 
         slotsFull = 0;
 
         HashNode<K, V> head = array[(int)bucketIndex];
 
-        while (head != null && slotsFull < 32)
-        {
+        while (head != null && slotsFull < 32) {
             slotsFull++;
 
             // if at end of bucket
-            if ((bucketIndex + 1) % 32 == 0)
-            {
+            if ((bucketIndex + 1) % 32 == 0) {
                 bucketIndex -= 31;
             }
-            else
-            {
+            else {
                 bucketIndex++;
             }
 
             head = array[(int)bucketIndex];
         }
-        if (!isBucketFull())
-        {
+        if (!isBucketFull()) {
             size++;
             HashNode<K, V> newNode = new HashNode<K, V>(key, value);
             newNode.next = head;
@@ -269,8 +249,7 @@ public class HashTable<K, V>
      *
      * @return boolean true or false
      */
-    public boolean isFull()
-    {
+    public boolean isFull() {
         return (size == capacity);
     }
 
@@ -278,25 +257,26 @@ public class HashTable<K, V>
     /**
      * Represents a node in the hash table
      *
-     * @author collee57
-     * @author ajd29
+     * @author collee57 Colleen Schmidt
+     * @author ajd29 Allison DeSantis
      * @param <K>
      *            generic for key
      * @param <V>
      *            generic for value
+     * @version Dec 10 2019
      */
-    private class HashNode<K, V>
-    {
-        K              key;
-        V              value;
+    @SuppressWarnings("hiding")
+    private class HashNode<K, V> {
+        private K key;
+        private V value;
 
         // Reference to next node
-        HashNode<K, V> next;
+        @SuppressWarnings("unused")
+        private HashNode<K, V> next;
 
 
         // Constructor
-        private HashNode(K key, V value)
-        {
+        private HashNode(K key, V value) {
             this.key = key;
             this.value = value;
         }

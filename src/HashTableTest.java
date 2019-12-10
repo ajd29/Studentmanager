@@ -1,8 +1,9 @@
-
 /**
  * test class for hash table
- * @author collee57
- * @author ajd29
+ * 
+ * @author collee57 Colleen Schmidt
+ * @author ajd29 Allison DeSantis
+ * @version dec 10 2019
  *
  */
 public class HashTableTest extends student.TestCase {
@@ -15,7 +16,9 @@ public class HashTableTest extends student.TestCase {
 
     // student objects
     private Student s1;
+    // student objects
     private Student s2;
+
 
     /**
      * Set up method
@@ -27,8 +30,10 @@ public class HashTableTest extends student.TestCase {
         s2 = new Student("1234", "s2", "student");
     }
 
+
     /**
      * Tests size()
+     * 
      * @throws Exception
      */
     public void testSize() throws Exception {
@@ -37,8 +42,10 @@ public class HashTableTest extends student.TestCase {
         assertEquals(0, studentTable.size());
     }
 
+
     /**
      * Tests get()
+     * 
      * @throws Exception
      */
     public void testGet() throws Exception {
@@ -64,8 +71,10 @@ public class HashTableTest extends student.TestCase {
         }
     }
 
+
     /**
      * Tests the getSfoldKey() method
+     * 
      * @throws Exception
      */
     public void testGetSfoldKey() throws Exception {
@@ -74,20 +83,24 @@ public class HashTableTest extends student.TestCase {
         assertEquals(studentTable.getSfoldKey("477937023"), 52);
     }
 
+
     /**
      * Tests isEmpty()
+     * 
      * @throws Exception
      */
     public void testIsEmpty() throws Exception {
         setUp();
         assertTrue(table.isEmpty());
         assertTrue(studentTable.isEmpty());
-        studentTable.add("stu",  s1);
+        studentTable.add("stu", s1);
         assertFalse(studentTable.isEmpty());
     }
 
+
     /**
      * Tests isBucketFull()
+     * 
      * @throws Exception
      */
     public void testIsBucketFull() throws Exception {
@@ -103,8 +116,10 @@ public class HashTableTest extends student.TestCase {
         assertTrue(studentTable.isBucketFull());
     }
 
+
     /**
      * Tests isBucketFull() when bucket is full
+     * 
      * @throws Exception
      */
     public void testIsBucketFullTrue() throws Exception {
@@ -117,8 +132,10 @@ public class HashTableTest extends student.TestCase {
         assertFalse(table.isBucketFull());
     }
 
+
     /**
      * Tests isFull()
+     * 
      * @throws Exception
      */
     public void testIsFull() throws Exception {
@@ -135,8 +152,10 @@ public class HashTableTest extends student.TestCase {
         assertTrue(table.isFull());
     }
 
+
     /**
      * Tests add()
+     * 
      * @throws Exception
      */
     public void testAdd() throws Exception {
@@ -153,13 +172,13 @@ public class HashTableTest extends student.TestCase {
 
         studentTable.add("123", s1);
         assertEquals(1, studentTable.size());
-        assertEquals("Sally student at slot ",
-            studentTable.get("123").toString());
+        assertEquals("Sally student at slot ", studentTable.get("123")
+            .toString());
 
         studentTable.add("1234", s2);
         assertEquals(2, studentTable.size());
-        assertEquals("s2 student at slot ",
-            studentTable.get("1234").toString());
+        assertEquals("s2 student at slot ", studentTable.get("1234")
+            .toString());
 
         // fill hash table
         String pid = "123";
@@ -181,8 +200,10 @@ public class HashTableTest extends student.TestCase {
         assertEquals(studentTable.size(), 32);
     }
 
+
     /**
      * Tests remove()
+     * 
      * @throws Exception
      */
     public void testRemove() throws Exception {
@@ -214,8 +235,10 @@ public class HashTableTest extends student.TestCase {
         assertEquals(studentTable.size(), 0);
     }
 
+
     /**
      * Tests getArrayString()
+     * 
      * @throws Exception
      */
     public void testGetArrayString() throws Exception {
