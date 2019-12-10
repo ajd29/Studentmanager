@@ -54,6 +54,14 @@ public class HashTableTest extends student.TestCase {
         assertEquals(studentTable.get("2").toString(), s1.toString());
         assertEquals(studentTable.get("1").toString(), s1.toString());
         assertEquals(studentTable.get("4").toString(), s2.toString());
+
+        // bucket full
+        String pid = "1";
+        for (int i = 0; i < 64; i++) {
+            studentTable.add(pid, s1);
+            pid += "1";
+            studentTable.get(pid);
+        }
     }
 
     /**
@@ -74,6 +82,8 @@ public class HashTableTest extends student.TestCase {
         setUp();
         assertTrue(table.isEmpty());
         assertTrue(studentTable.isEmpty());
+        studentTable.add("stu",  s1);
+        assertFalse(studentTable.isEmpty());
     }
 
     /**
@@ -88,11 +98,23 @@ public class HashTableTest extends student.TestCase {
         String pid = "123";
         for (int i = 0; i < 32; i++) {
             studentTable.add(pid, s1);
-            pid += "1";
         }
-        studentTable.add("1245", s1);
-        assertEquals(studentTable.size(), 33);
+        studentTable.add("123", s1);
         assertTrue(studentTable.isBucketFull());
+    }
+
+    /**
+     * Tests isBucketFull() when bucket is full
+     * @throws Exception
+     */
+    public void testIsBucketFullTrue() throws Exception {
+        setUp();
+
+        String pid = "1";
+        for (int i = 0; i < 32; i++) {
+            table.add(pid, 3);
+        }
+        assertFalse(table.isBucketFull());
     }
 
     /**
@@ -101,14 +123,15 @@ public class HashTableTest extends student.TestCase {
      */
     public void testIsFull() throws Exception {
         setUp();
+
         assertFalse(table.isFull());
 
         // fill hash table
         String pid = "123";
         for (int i = 0; i < 32; i++) {
             table.add(pid, 4);
-            pid += "1";
         }
+        assertEquals(table.size(), 32);
         assertTrue(table.isFull());
     }
 
@@ -130,19 +153,18 @@ public class HashTableTest extends student.TestCase {
 
         studentTable.add("123", s1);
         assertEquals(1, studentTable.size());
-        assertEquals("123, Sally Student, score = 0",
+        assertEquals("Sally student at slot ",
             studentTable.get("123").toString());
 
         studentTable.add("1234", s2);
         assertEquals(2, studentTable.size());
-        assertEquals("1234, S2 Student, score = 0",
+        assertEquals("s2 student at slot ",
             studentTable.get("1234").toString());
 
         // fill hash table
         String pid = "123";
         for (int i = 0; i < 30; i++) {
             table.add(pid, 4);
-            pid += "1";
         }
         table.add("12", 3);
         assertEquals(table.size(), 32);
@@ -150,14 +172,13 @@ public class HashTableTest extends student.TestCase {
         // fill student table
         for (int i = 0; i < 62; i++) {
             studentTable.add(pid, s1);
-            pid += "1";
         }
         studentTable.add("12", s1);
-        assertEquals(studentTable.size(), 64);
+        assertEquals(studentTable.size(), 32);
 
         // add one that exists, doesn't add
         studentTable.add("12", s1);
-        assertEquals(studentTable.size(), 64);
+        assertEquals(studentTable.size(), 32);
     }
 
     /**
@@ -167,23 +188,40 @@ public class HashTableTest extends student.TestCase {
     public void testRemove() throws Exception {
         setUp();
 
+        // add one, remove that one
         studentTable.add("person", s1);
         studentTable.remove("person");
         assertEquals(studentTable.size(), 0);
         assertNull(studentTable.get("person"));
 
+        // add three
         studentTable.add("123", s1);
         studentTable.add("1234", s1);
         studentTable.add("1", s1);
 
-        studentTable.remove("123");
+        // remove one
+        studentTable.remove("1234");
         assertEquals(studentTable.size(), 2);
 
-        studentTable.remove("1");
+        studentTable.remove("123");
         assertEquals(studentTable.size(), 1);
+
+        studentTable.remove("1");
+        assertEquals(studentTable.size(), 0);
 
         // already removed
         studentTable.remove("1");
+        assertEquals(studentTable.size(), 0);
+    }
+
+    /**
+     * Tests getArrayString()
+     * @throws Exception
+     */
+    public void testGetArrayString() throws Exception {
+        setUp();
+        studentTable.add("person", s1);
+        studentTable.getArrayString();
         assertEquals(studentTable.size(), 1);
     }
 }
