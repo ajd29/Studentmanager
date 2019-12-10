@@ -32,7 +32,6 @@ public class MemoryManager
         memFile = new RandomAccessFile(fileName, "rw");
     }
 
-
     /**
      * Return free list
      *
@@ -43,7 +42,6 @@ public class MemoryManager
         return freeList;
     }
 
-
     /**
      * Return memory file
      *
@@ -53,7 +51,6 @@ public class MemoryManager
     {
         return memFile;
     }
-
 
     /**
      * Writes student record to memory file
@@ -105,7 +102,6 @@ public class MemoryManager
         }
     }
 
-
     /**
      * Updates a student's name
      *
@@ -138,7 +134,6 @@ public class MemoryManager
         memFile.write(nameArray);
         student.setNameHandle(pos, nameArray.length);
     }
-
 
     /**
      * Updates a student's essay
@@ -174,7 +169,6 @@ public class MemoryManager
         student.setEssayHandle(pos, essayArray.length);
     }
 
-
     /**
      * Removes a record from memory file
      *
@@ -195,7 +189,6 @@ public class MemoryManager
         }
     }
 
-
     /**
      * Clears a student's essay from memory file
      *
@@ -209,10 +202,11 @@ public class MemoryManager
         if (student.getEssayHandle() != null)
         {
             freeBlock(student.getEssayHandle());
+
+            // sets handle to null
             student.clearEssay();
         }
     }
-
 
     /**
      * Finds first free block that is large enough for the given array of bytes
@@ -237,7 +231,6 @@ public class MemoryManager
         return freeBlock;
     }
 
-
     /**
      * Checks if there is a free block big enough for the size in free list
      *
@@ -257,7 +250,6 @@ public class MemoryManager
         }
         return false;
     }
-
 
     /**
      * Add a free block to the free list in order of byte position in memory
@@ -280,7 +272,6 @@ public class MemoryManager
         }
         freeList.add(index, freeBlock);
     }
-
 
     /**
      * Clears the data in the memory file from the start position to the end
@@ -316,7 +307,6 @@ public class MemoryManager
         }
     }
 
-
     /**
      * Removes free block to be written to from list
      *
@@ -344,7 +334,6 @@ public class MemoryManager
         }
     }
 
-
     /**
      * Merge free blocks
      *
@@ -359,7 +348,6 @@ public class MemoryManager
         }
     }
 
-
     /**
      * Merges two free blocks into one block
      *
@@ -368,23 +356,23 @@ public class MemoryManager
     public void mergeBlocks()
         throws IOException
     {
-        int i = 0;
-        int firstPos = freeList.get(i).getPos();
-        int end = firstPos + freeList.get(i).getLength();
+        for (int i = 0; i < freeList.size(); i++) {
+            int firstPos = freeList.get(i).getPos();
+            int end = firstPos + freeList.get(i).getLength();
 
-        if ((i + 1) < freeList.size() && end == freeList.get(i + 1).getPos())
-        {
-            int length =
-                freeList.get(i).getLength() + freeList.get(i + 1).getLength();
+            if ((i + 1) < freeList.size() && end == freeList.get(i + 1).getPos())
+            {
+                int length =
+                    freeList.get(i).getLength() + freeList.get(i + 1).getLength();
 
-            MemoryHandle merged = new MemoryHandle(firstPos, length);
+                MemoryHandle merged = new MemoryHandle(firstPos, length);
 
-            freeList.remove(i);
-            freeList.remove(i);
-            addFreeBlock(merged);
+                freeList.remove(i);
+                freeList.remove(i);
+                addFreeBlock(merged);
+            }
         }
     }
-
 
     /**
      * Returns true if blocks can be merged in free list
@@ -393,6 +381,9 @@ public class MemoryManager
      */
     public boolean canMerge()
     {
+        if (freeList.size() < 2) {
+            return false;
+        }
         for (int i = 0; i < freeList.size(); i++)
         {
             int end = freeList.get(i).getPos() + freeList.get(i).getLength();
@@ -406,7 +397,6 @@ public class MemoryManager
         }
         return false;
     }
-
 
     /**
      * Returns true if last block in memory file is free
@@ -426,7 +416,6 @@ public class MemoryManager
         return false;
     }
 
-
     /**
      * Removes last free block from list and shortens file length
      *
@@ -441,7 +430,6 @@ public class MemoryManager
         // remove last free block from free list
         freeList.remove(freeList.get(freeList.size() - 1));
     }
-
 
     /**
      * Print free blocks in order they are in free list
