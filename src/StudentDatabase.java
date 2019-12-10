@@ -21,9 +21,6 @@ public class StudentDatabase
     // student of the previous command
     private Student                    currStudent;
 
-    // byte position of student record in memory file
-    private int                        position;
-
     // Memory manager object
     private MemoryManager              memManager;
 
@@ -33,13 +30,16 @@ public class StudentDatabase
      *
      * @param hashSize
      *            size of hash table
+     * @param fileName
+     *            name of memory file
      * @throws FileNotFoundException
      */
-    public StudentDatabase(int hashSize)
+    public StudentDatabase(String hashSize, String fileName)
         throws FileNotFoundException
     {
-        hash = new HashTable<String, Student>(hashSize);
-        memManager = new MemoryManager();
+        int size = Integer.parseInt(hashSize);
+        hash = new HashTable<String, Student>(size);
+        memManager = new MemoryManager(fileName);
     }
 
 
@@ -53,6 +53,7 @@ public class StudentDatabase
         return hash;
     }
 
+
     /**
      * Returns memory manager
      *
@@ -62,6 +63,7 @@ public class StudentDatabase
     {
         return memManager;
     }
+
 
     /**
      * Loads student data from text file
@@ -73,49 +75,41 @@ public class StudentDatabase
     public void loadStudentData(String fileName)
         throws IOException
     {
-
         essayValid = false;
 
-        String warnings = "Warning: ";
+        String warnings = "";
 
         File file = new File(fileName);
         Scanner in = new Scanner(file);
 
-        while (in.hasNextLine())
-        {
+        while (in.hasNextLine()) {
+
             String line = in.nextLine().trim();
+            String[] input = line.split(",\\s*");
 
-            if (!line.equals(",,,") && !line.equals("") && !line.isEmpty()
-                && !line.equals(",,,,,"))
-            {
-                String[] input = line.split(",\\s*");
+            if (input.length == 4) {
 
-                String p = input[0];
-                if (input[0].length() < 9)
+                String pid = input[0];
+
+                while (pid.length() < 9)
                 {
-                    p = "0" + input[0];
+                    pid = "0" + pid;
                 }
                 String first = input[1];
-                String middle = input[2];
                 String last = input[3];
 
-                Student s = new Student(p, first, last);
-                if (middle.length() > 0)
-                {
-                    // s.setMiddleName(middle);
-                }
+                Student s = new Student(pid, first, last);
 
-                if (hash.get(p) == null)
+                if (hash.get(pid) == null)
                 {
                     // tries to add
-                    hash.add(p, s);
+                    hash.add(pid, s);
 
                     if (hash.isBucketFull())
                     {
-                        // don't store in memory if bucket is full
-                        warnings +=
-                            "There is no free place in the bucket to load "
-                                + " student " + p + " " + s.getName();
+                        warnings =
+                            "\nWarning: There is no free place in the bucket to"
+                                + " load student " + pid + " " + s.getName();
                     }
                     else
                     {
@@ -123,14 +117,13 @@ public class StudentDatabase
                         currStudent = s;
                     }
                 }
-                else
-                {
-                    warnings += "Student " + p + " " + s.getName()
+                else {
+                    warnings = "\nWarning: Student " + pid + " " + s.getName()
                         + " is not loaded since a student with the same pid exists.";
                 }
             }
         }
-        System.out.println(fileName + " successfully loaded.\n" + warnings);
+        System.out.println(fileName + " successfully loaded." + warnings);
     }
 
     /**
@@ -147,7 +140,6 @@ public class StudentDatabase
     public void insert(String pid, String fName, String lName)
         throws IOException
     {
-
         Student student = new Student(pid, fName, lName);
 
         // if student isn't already in hash table
@@ -156,10 +148,16 @@ public class StudentDatabase
             currStudent = student;
             hash.add(pid, student);
 
+            if (hash.isBucketFull())
+            {
+                System.out.println(
+                    student.getName() + " insertion failed. Attempt to insert "
+                        + "in a full bucket.");
+                return;
+            }
+
             memManager.storeRecord(student);
-
             essayValid = true;
-
             System.out.println(student.getName() + " inserted.");
         }
         else
@@ -193,8 +191,7 @@ public class StudentDatabase
         {
             this.insert(pid, fName, lName);
         }
-        else
-        {
+        else {
             // if name is actually different
             if (!student.getName().equals(hash.get(pid).getName()))
             {
@@ -233,6 +230,7 @@ public class StudentDatabase
         }
     }
 
+
     /**
      * Will immediately follow successful insert or update command; the
      * corresponding text will be associated with the PID of the previous
@@ -260,6 +258,7 @@ public class StudentDatabase
         essayValid = false;
     }
 
+
     /**
      * Remove the essay associated with the sPID
      *
@@ -278,13 +277,13 @@ public class StudentDatabase
         else
         {
             hash.get(pid).setEssay("");
-            hash.get(pid).setEssayHandle(position, 0);
             memManager.clearEssay(hash.get(pid));
             System.out.println(
                 "record with pid " + pid + " with full name "
                     + hash.get(pid).getName() + " is cleared.");
         }
     }
+
 
     /**
      * Prints out info associated with PID if there is one stored in the
@@ -296,6 +295,7 @@ public class StudentDatabase
     public void search(String pid)
     {
         essayValid = false;
+
         if (hash.get(pid) == null)
         {
             System.out.println(
@@ -304,15 +304,18 @@ public class StudentDatabase
         else
         {
             String essay = hash.get(pid).getEssay();
-            if (hash.get(pid).getEssay().length() > 0)
-            {
-                essay = "\n" + hash.get(pid).getEssay();
-            }
-            System.out.println(
-                pid + " " + hash.get(pid).getName() + ":" + essay);
 
+            if (essay.length() > 0) {
+                System.out
+                .print(pid + " " + hash.get(pid).getName() + ":\n" + essay);
+            }
+            else {
+                System.out
+                .print(pid + " " + hash.get(pid).getName() + ":");
+            }
         }
     }
+
 
     /**
      * Print out a list of all records in the database
@@ -321,10 +324,8 @@ public class StudentDatabase
     {
         essayValid = false;
 
-        System.out.println("Students in the database:" +
-        hash.getArrayString());
+        System.out.println("Students in the database:" + hash.getArrayString());
 
-        System.out.println("SIZE OF FREELIST: " + memManager.getFreeList().size());
         memManager.printFreeList();
     }
 }
