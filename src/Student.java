@@ -209,25 +209,6 @@ public class StudentTest extends student.TestCase {
     }
 
     /**
-     * tests the middle name getter
-     *
-    public void testGetMiddleName() {
-        Student me = new Student("98", "Colleen", "Schmidt");
-(me.getMiddleName(), "Elizabeth");
-
-        Student m = new Student("98", "col mid sch");
-        assertEquals(m.getMiddleName(), "mid");
-    }/
-
-    /**
-     * tests the middle name setter
-     *
-    public void testSetMiddleName() {
-        Student me = new Student("98", "Colleen", "Schmidt");
-        assertEquals(me.getMiddleName(), "Elizabeth");
-    }/
-
-    /**
      * Tests the getEssay() method
      */
     public void testGetEssay() {
