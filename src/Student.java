@@ -1,275 +1,246 @@
-
 /**
- * Represents a student record object
+ * Tests for the Student class
  *
- * @author ajd29
  * @author collee57
- * @version Nov 27, 2019
+ * @author ajd29
+ * @version 2019-10-26
+ *
  */
-public class Student
-    implements Comparable<Student>
-{
-    // student's first name
-    private String       firstName;
+public class StudentTest extends student.TestCase {
 
-    // student's last name
-    private String       lastName;
-
-    // student's PID
-    private String       pID;
-
-    // essay associated with student
-    private String       essay;
-
-    // memory handle for student's name
-    private MemoryHandle nameHandle;
-
-    // memory handle for student's essay
-    private MemoryHandle essayHandle;
-
+    // Student objects
+    private Student s1;
+    private Student s2;
+    private Student s3;
+    private Student s4;
+    private int num;
 
     /**
-     * parameterized constructor for student object
-     *
-     * @param p
-     *            PID
-     * @param fName
-     *            first name
-     * @param lName
-     *            last name
+     * Set up method
      */
-    public Student(String p, String fName, String lName)
-    {
-        firstName = fName;
-        lastName = lName;
-        pID = p;
-        essay = "";
+    public void setUp() {
+        s1 = new Student("12345678", "Colleen", "Schmidt");
+        s2 = new Student("12345670", "Susan", "Pak");
+        s3 = null;
 
-  /*      if (firstName.length() == 1)
-        {
-            firstName = firstName.toUpperCase();
-        }
-
-        if (lastName.length() == 1)
-        {
-            lastName = lastName.toUpperCase();
-        }
-        else
-        {
-            firstName = firstName.substring(0, 1).toUpperCase()
-                + firstName.substring(1).toLowerCase();
-
-            lastName = lastName.substring(0, 1).toUpperCase()
-                + lastName.substring(1).toLowerCase();
-        }*/
-    }
-
-    /**
-     * Returns name memory handle
-     *
-     * @return MemoryHandle name memory handle
-     */
-    public MemoryHandle getNameHandle()
-    {
-        return nameHandle;
+        s4 = new Student("12345678", "Colon", "Schmidt");
+        num = 9;
     }
 
 
     /**
-     * Returns essay memory handle
+     * Test method for getFirstName()
      *
-     * @return MemoryHandle essay memory handle
+     * @throws Exception
      */
-    public MemoryHandle getEssayHandle()
+    public void testGetFirstName()
+        throws Exception
     {
-        return essayHandle;
+        setUp();
+        assertEquals(s1.getFirstName(), "Colleen");
+        assertEquals(s2.getFirstName(), "Susan");
+
+        Student blank = new Student("0", "", "");
+        assertEquals(blank.getFirstName(), "");
+
     }
 
     /**
-     * Set name memory handle
+     * Test method for getLastName()
      *
-     * @param pos
-     *            position
-     * @param len
-     *            length
+     * @throws Exception
      */
-    public void setNameHandle(int pos, int len)
+    public void testGetLastName()
+        throws Exception
     {
-        nameHandle = new MemoryHandle(pos, len);
+        setUp();
+        assertEquals(s1.getLastName(), "Schmidt");
+        assertEquals(s2.getLastName(), "Pak");
+        Student blank = new Student("0", "", "");
+        assertEquals(blank.getLastName(), "");
     }
 
     /**
-     * Set essay memory handle
-     *
-     * @param pos
-     *            position
-     * @param len
-     *            length
+     * Tests getEssayHandle()
      */
-    public void setEssayHandle(int pos, int len)
-    {
-        essayHandle = new MemoryHandle(pos, len);
-    }
+    public void testGetEssayHandle() {
+        setUp();
+        assertNull(s1.getEssayHandle());
+        MemoryHandle essay = new MemoryHandle(3, 4);
+        s1.setEssayHandle(3,  4);
+        assertEquals(s1.getEssayHandle().getPos(), essay.getPos());
+        assertEquals(s1.getEssayHandle().getLength(), essay.getLength());
 
-    /**
-     * Makes student's essay handle null when an essay is cleared
-     */
-    public void clearEssay()
-    {
-        essayHandle = null;
-    }
-
-    /**
-     * Returns first name
-     *
-     * @return String first name
-     */
-    public String getFirstName()
-    {
-        return firstName;
-    }
-
-    /**
-     * Returns last name
-     *
-     * @return String last name
-     */
-    public String getLastName()
-    {
-        return lastName;
-    }
-
-    /**
-     * Returns string of full name
-     *
-     * @return String representation of full name
-     */
-    public String getName()
-    {
-        return firstName + " " + lastName;
     }
 
 
     /**
-     * Sets student's name
-     *
-     * @param fName
-     *            first name
-     * @param lName
-     *            last name
+     * Tests getNameHandle()
      */
-    public void setName(String fName, String lName)
-    {
-        firstName = fName;
-        lastName = lName;
+    public void testGetNameHandle() {
+        setUp();
+        assertNull(s1.getNameHandle());
+        MemoryHandle name = new MemoryHandle(3, 4);
+        s1.setNameHandle(3,  4);
+        assertEquals(s1.getNameHandle().getPos(), name.getPos());
+        assertEquals(s1.getNameHandle().getLength(), name.getLength());
     }
 
     /**
-     * Returns string of essay
-     *
-     * @return String representation of essay
+     * Tests clearEssay()
      */
-    public String getEssay()
+    public void testClearEssay() {
+        setUp();
+        MemoryHandle essay = new MemoryHandle(3, 4);
+        s1.setEssayHandle(3,  4);
+        s1.clearEssay();
+        assertNull(s1.getEssayHandle());
+    }
+
+
+    /**
+     * Tests getName() to ensure full name is returned
+     *
+     * @throws Exception
+     */
+    public void testGetName()
+        throws Exception
     {
-        return essay;
+        setUp();
+        Student student = new Student("111111111", "a", "a");
+
+        assertEquals(student.getName(), "a a");
+        assertEquals(student.getName().length(), 3);
+
+        Student newStudent = new Student("111111111", "Susan", "Obi");
+        assertEquals(newStudent.getName(), "Susan Obi");
+
+        Student blank = new Student("90", " ", "");
+        assertEquals(blank.getName(), "  ");
     }
 
     /**
-     * Sets a student's essay
-     *
-     * @param stuEssay
-     *            to set student's essay to
+     * Tests setName()
      */
-    public void setEssay(String stuEssay)
-    {
-        essay = stuEssay;
+    public void testSetName() {
+        setUp();
+        s1.setName("new",  "name");
+        assertEquals(s1.getName(), "new name");
     }
 
     /**
-     * Returns the student's PID
+     * Test method for setID()
      *
-     * @return String PID
+     * @throws Exception
      */
-    public String getPID()
+    public void testSetPID()
+        throws Exception
     {
-        return pID;
+        setUp();
+
+        s1.setPID("010001");
+        assertEquals(s1.getPID(), "010001");
+
+        s1.setPID("020002");
+        assertEquals(s1.getPID(), "020002");
     }
 
     /**
-     * setter for id
+     * Test method for equals()
      *
-     * @param i
-     *            ID
+     * @throws Exception
      */
-    public void setPID(String i)
+    public void testEquals()
+        throws Exception
     {
-        pID = i;
+        setUp();
+        Student colleen = new Student("12345678", "collEEN", "SCHMIDt");
+        assertTrue(colleen.equals(s1));
+
+        assertTrue(s1.equals(s4));
+        assertFalse(s1.equals(s2));
+        assertFalse(s1.equals(s3));
+        assertTrue(s1.equals(s1));
+
+        String allison = "";
+        assertFalse(allison.equals(colleen));
+
+        assertFalse(colleen.equals(num));
     }
 
     /**
-     * Compares a student to another student based on name
-     *
-     * @param obj
-     *            object to compare to
-     * @return int 1 if student is greater, -1 if student is less than and 0 if
-     *         students are equal
+     * Tests the student's compareTo method
+     * @throws Exception
      */
-    @Override
-    public int compareTo(Student obj)
-    {
-        Student student = obj;
+    public void testCompareTo() throws Exception {
+        setUp();
+        Student allison = new Student("0", "Allison", "DeSantis");
+        Student alli = new Student("0", "Aaa", "DeSantis");
 
-        if (this.getLastName().equalsIgnoreCase(student.getLastName()))
-        {
-            if (this.getFirstName().compareTo(student.getFirstName()) < 0)
-            {
-                return -1;
-            }
-            if (this.getFirstName().compareTo(student.getFirstName()) > 0)
-            {
-                return 1;
-            }
-            return 0;
-        }
+        // same last name, returns 1
+        assertEquals(allison.compareTo(alli), 1);
 
-        if (this.getLastName().toLowerCase()
-            .compareTo(student.getLastName().toLowerCase()) < 0)
-        {
-            return -1;
-        }
-        return 1;
+        // same last name, returns -1
+        Student al = new Student("0", "z", "DeSantis");
+        assertEquals(allison.compareTo(al), -1);
+
+        // same name
+        Student allis = new Student("0", "Allison", "DeSantis");
+        assertEquals(allison.compareTo(allis), 0);
+
+        // same first name, returns 1
+        Student last = new Student("0", "Allison", "c");
+        assertEquals(allison.compareTo(last), 1);
+
+        // same first name, returns -1
+        Student diff = new Student("0", "Allison", "Z");
+        assertEquals(allison.compareTo(diff), -1);
+
+
+        Student c1 = new Student("0", "Colleen", "Schmidt");
+        Student c2 = new Student("0", "Colleen", "Schmidt");
+
+        assertEquals(c1.compareTo(c2), 0);
+
+        assertEquals(c2.compareTo(c1), 0);
+
+        Student c3 = new Student("0", "Colleen", "Schmidt");
+        assertEquals(c1.compareTo(c3), 0);
     }
 
     /**
-     * Checks if two student objects are equal based on PID
+     * tests the middle name getter
      *
-     * @param obj
-     *            object to compare to
-     * @return boolean true if students are equal
+    public void testGetMiddleName() {
+        Student me = new Student("98", "Colleen", "Schmidt");
+(me.getMiddleName(), "Elizabeth");
+
+        Student m = new Student("98", "col mid sch");
+        assertEquals(m.getMiddleName(), "mid");
+    }/
+
+    /**
+     * tests the middle name setter
+     *
+    public void testSetMiddleName() {
+        Student me = new Student("98", "Colleen", "Schmidt");
+        assertEquals(me.getMiddleName(), "Elizabeth");
+    }/
+
+    /**
+     * Tests the getEssay() method
      */
-    public boolean equals(Object obj)
-    {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj.getClass().equals(this.getClass()))
-        {
-
-            Student student = (Student)obj;
-
-            return (student.getPID() == this.getPID());
-        }
-        return false;
+    public void testGetEssay() {
+        assertEquals(s1.getEssay(), "");
+        s1.setEssay("this student's essay");
+        assertEquals(s1.getEssay(), "this student's essay");
     }
 
     /**
-     * Student's toString() method
-     *
-     * @return String representation of a student record
+     * Tests the setEssay() method
      */
-    public String toString()
-    {
-        return this.getName() + " at slot ";
+    public void testSetEssay() {
+        s1.setEssay("new essay for s1");
+        assertEquals(s1.getEssay(), "new essay for s1");
     }
 }
