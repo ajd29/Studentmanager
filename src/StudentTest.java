@@ -15,7 +15,6 @@ public class StudentTest extends student.TestCase {
     private Student s4;
     private int num;
 
-
     /**
      * Set up method
      */
@@ -34,23 +33,26 @@ public class StudentTest extends student.TestCase {
      *
      * @throws Exception
      */
-    public void testGetFirstName() throws Exception {
+    public void testGetFirstName()
+        throws Exception
+    {
         setUp();
         assertEquals(s1.getFirstName(), "Colleen");
         assertEquals(s2.getFirstName(), "Susan");
 
-        Student blank = new Student("0", " ", " ");
-        assertEquals(blank.getFirstName(), " ");
+        Student blank = new Student("0", "", "");
+        assertEquals(blank.getFirstName(), "");
 
     }
-
 
     /**
      * Test method for getLastName()
      *
      * @throws Exception
      */
-    public void testGetLastName() throws Exception {
+    public void testGetLastName()
+        throws Exception
+    {
         setUp();
         assertEquals(s1.getLastName(), "Schmidt");
         assertEquals(s2.getLastName(), "Pak");
@@ -58,48 +60,79 @@ public class StudentTest extends student.TestCase {
         assertEquals(blank.getLastName(), "");
     }
 
-
     /**
      * Tests getName() to ensure full name is returned
      *
      * @throws Exception
      */
-    public void testGetName() throws Exception {
+    public void testGetName()
+        throws Exception
+    {
         setUp();
         Student student = new Student("111111111", "a", "a");
-        // student.setMiddleName("b");
 
-        assertEquals(student.getName(), "A A");
+        assertEquals(student.getName(), "a a");
         assertEquals(student.getName().length(), 3);
 
-        Student newStudent = new Student("111111111", "SusAN", "OBI");
+        Student newStudent = new Student("111111111", "Susan", "Obi");
         assertEquals(newStudent.getName(), "Susan Obi");
 
         Student blank = new Student("90", " ", "");
         assertEquals(blank.getName(), "  ");
     }
 
-
     /**
-     * Test method for getSection()
+     * Test method for getScore()
      *
      * @throws Exception
-     */
-    public void testGetPID() throws Exception {
+     *
+    public void testGetScore()
+        throws Exception
+    {
         setUp();
+        s1.setScore(56);
+        assertEquals(s1.getScore(), 56);
 
-        Student stu = new Student("9", "b", "a");
+        s1.setScore(98);
+        assertEquals(s1.getScore(), 98);
 
-        assertEquals(stu.getPID(), "9");
-    }
+        s1.setScore(101);
+        assertEquals(s1.getScore(), 98);
 
+        s1.setScore(-1);
+        assertEquals(s1.getScore(), 98);
+    }*/
+
+    /**
+     * Test method for setFirstName()
+     *
+     * @throws Exception
+     *
+    public void testSetScore()
+        throws Exception
+    {
+        setUp();
+        s1.setScore(56);
+        assertEquals(s1.getScore(), 56);
+
+        s2.setScore(-5);
+        assertEquals(s2.getScore(), 0);
+
+        s2.setScore(101);
+        assertEquals(s2.getScore(), 0);
+
+        s2.setScore(98);
+        assertEquals(s2.getScore(), 98);
+    }/
 
     /**
      * Test method for setID()
      *
      * @throws Exception
      */
-    public void testSetPID() throws Exception {
+    public void testSetPID()
+        throws Exception
+    {
         setUp();
 
         s1.setPID("010001");
@@ -109,16 +142,16 @@ public class StudentTest extends student.TestCase {
         assertEquals(s1.getPID(), "020002");
     }
 
-
     /**
      * Test method for equals()
      *
      * @throws Exception
      */
-    public void testEquals() throws Exception {
+    public void testEquals()
+        throws Exception
+    {
         setUp();
         Student colleen = new Student("12345678", "collEEN", "SCHMIDt");
-
         assertTrue(colleen.equals(s1));
 
         assertTrue(s1.equals(s4));
@@ -132,10 +165,8 @@ public class StudentTest extends student.TestCase {
         assertFalse(colleen.equals(num));
     }
 
-
     /**
      * Tests the student's compareTo method
-     * 
      * @throws Exception
      */
     public void testCompareTo() throws Exception {
@@ -151,7 +182,7 @@ public class StudentTest extends student.TestCase {
         assertEquals(allison.compareTo(al), -1);
 
         // same name
-        Student allis = new Student("0", "allison", "DeSantis");
+        Student allis = new Student("0", "Allison", "DeSantis");
         assertEquals(allison.compareTo(allis), 0);
 
         // same first name, returns 1
@@ -162,21 +193,36 @@ public class StudentTest extends student.TestCase {
         Student diff = new Student("0", "Allison", "Z");
         assertEquals(allison.compareTo(diff), -1);
 
+
         Student c1 = new Student("0", "Colleen", "Schmidt");
-        // c1.setMiddleName("Elizabeth");
         Student c2 = new Student("0", "Colleen", "Schmidt");
-        // c2.setMiddleName("Jane");
 
         assertEquals(c1.compareTo(c2), 0);
 
         assertEquals(c2.compareTo(c1), 0);
 
         Student c3 = new Student("0", "Colleen", "Schmidt");
-        // c3.setMiddleName("Elizabeth");
         assertEquals(c1.compareTo(c3), 0);
-
     }
 
+    /**
+     * tests the middle name getter
+     *
+    public void testGetMiddleName() {
+        Student me = new Student("98", "Colleen", "Schmidt");
+(me.getMiddleName(), "Elizabeth");
+
+        Student m = new Student("98", "col mid sch");
+        assertEquals(m.getMiddleName(), "mid");
+    }/
+
+    /**
+     * tests the middle name setter
+     *
+    public void testSetMiddleName() {
+        Student me = new Student("98", "Colleen", "Schmidt");
+        assertEquals(me.getMiddleName(), "Elizabeth");
+    }/
 
     /**
      * Tests the getEssay() method
@@ -186,7 +232,6 @@ public class StudentTest extends student.TestCase {
         s1.setEssay("this student's essay");
         assertEquals(s1.getEssay(), "this student's essay");
     }
-
 
     /**
      * Tests the setEssay() method
