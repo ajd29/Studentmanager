@@ -212,6 +212,7 @@ public class StudentTest extends student.TestCase {
      * Tests the getEssay() method
      */
     public void testGetEssay() {
+        setUp();
         assertEquals(s1.getEssay(), "");
         s1.setEssay("this student's essay");
         assertEquals(s1.getEssay(), "this student's essay");
@@ -221,7 +222,16 @@ public class StudentTest extends student.TestCase {
      * Tests the setEssay() method
      */
     public void testSetEssay() {
+        setUp();
         s1.setEssay("new essay for s1");
         assertEquals(s1.getEssay(), "new essay for s1");
+    }
+
+    /**
+     * Tests student's toString()
+     */
+    public void testToString() {
+        setUp();
+        assertEquals(s1.toString(), "Colleen Schmidt at slot ");
     }
 }
