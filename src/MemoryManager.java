@@ -12,7 +12,6 @@ import java.util.LinkedList;
  */
 public class MemoryManager
 {
-
     // Linked list for tracking free blocks of memory
     private LinkedList<MemoryHandle> freeList;
 
@@ -23,13 +22,14 @@ public class MemoryManager
     /**
      * Creates a new memory manager
      *
+     * @param fileName
      * @throws FileNotFoundException
      */
-    public MemoryManager()
+    public MemoryManager(String fileName)
         throws FileNotFoundException
     {
         freeList = new LinkedList<MemoryHandle>();
-        memFile = new RandomAccessFile("memoryFile", "rw");
+        memFile = new RandomAccessFile(fileName, "rw");
     }
 
 
@@ -65,7 +65,6 @@ public class MemoryManager
         throws IOException
     {
         byte[] nameArray = student.getName().getBytes();
-        byte[] essayArray = student.getEssay().getBytes();
 
         int freePos;
 
@@ -80,6 +79,7 @@ public class MemoryManager
         {
             freePos = (int)memFile.length();
         }
+
         memFile.seek(freePos);
         memFile.write(nameArray);
         student.setNameHandle(freePos, nameArray.length);
@@ -87,6 +87,8 @@ public class MemoryManager
         // write essay if it exists
         if (student.getEssay().length() > 0)
         {
+            byte[] essayArray = student.getEssay().getBytes();
+
             if (anyFreeBlocks(essayArray))
             {
                 MemoryHandle free = findFirstFree(essayArray);
@@ -124,8 +126,6 @@ public class MemoryManager
         {
             MemoryHandle free = findFirstFree(nameArray);
             pos = free.getPos();
-
-            // remove free block, deal with leftover free space
             removeFreeBlock(free, nameArray);
         }
         else
@@ -191,6 +191,7 @@ public class MemoryManager
         if (student.getEssayHandle() != null)
         {
             freeBlock(student.getEssayHandle());
+            student.clearEssay();
         }
     }
 
@@ -208,6 +209,7 @@ public class MemoryManager
         if (student.getEssayHandle() != null)
         {
             freeBlock(student.getEssayHandle());
+            student.clearEssay();
         }
     }
 
@@ -223,16 +225,13 @@ public class MemoryManager
     public MemoryHandle findFirstFree(byte[] array)
     {
         // get position in bytes of a free block
-        int lowestPos = freeList.get(0).getPos();
         MemoryHandle freeBlock = freeList.get(0);
 
         for (int i = 0; i < freeList.size(); i++)
         {
-            if (freeList.get(i).getPos() < lowestPos
-                && freeList.get(i).getLength() >= array.length)
+            if (freeList.get(i).getLength() >= array.length)
             {
-                lowestPos = freeList.get(i).getPos();
-                freeBlock = freeList.get(i);
+                return freeList.get(i);
             }
         }
         return freeBlock;
@@ -248,23 +247,15 @@ public class MemoryManager
      */
     public boolean anyFreeBlocks(byte[] array)
     {
-        boolean result = false;
-
-        // if there are no free blocks
-        if (freeList.size() == 0)
-        {
-            return result;
-        }
-
         // check if there even is big enough free block
         for (int i = 0; i < freeList.size(); i++)
         {
             if (freeList.get(i).getLength() >= array.length)
             {
-                result = true;
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
 
@@ -274,8 +265,10 @@ public class MemoryManager
      *
      * @param freeBlock
      *            to add to free list
+     * @throws IOException
      */
     public void addFreeBlock(MemoryHandle freeBlock)
+        throws IOException
     {
         int index = 0;
         for (int i = 0; i < freeList.size(); i++)
@@ -299,25 +292,28 @@ public class MemoryManager
     public void freeBlock(MemoryHandle handle)
         throws IOException
     {
-        String blank = new String();
+        String blank = "";
 
-        int end = handle.getPos() + handle.getLength();
-        int length = end - handle.getPos();
+        memFile.seek(handle.getPos());
 
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < handle.getLength(); i++)
         {
-            blank += blank;
+            blank += " ";
         }
 
-        byte[] blanks = blank.getBytes();
-        memFile.seek(handle.getPos());
-        memFile.write(blanks);
+        memFile.write(blank.getBytes());
 
         // add freed block to free list
         addFreeBlock(handle);
+
+        // merge possible free blocks at end
         mergeFree();
 
-        System.out.println("size of free list " + freeList.size());
+        // if last block is free, remove it shorten file length
+        if (isLastBlockFree())
+        {
+            removeLastFree();
+        }
     }
 
 
@@ -328,29 +324,34 @@ public class MemoryManager
      *            block to write to, then remove
      * @param array
      *            of bytes to write in free block
+     * @throws IOException
      */
     public void removeFreeBlock(MemoryHandle free, byte[] array)
+        throws IOException
     {
+        // remove free block
+        freeList.remove(free);
 
-        if (free.getLength() > array.length)
+        int len = free.getLength() - array.length;
+
+        if (len > 0)
         {
-
             int position = free.getPos() + array.length;
-            int len = free.getLength() - array.length;
             MemoryHandle leftover = new MemoryHandle(position, len);
 
             // add leftover free space
             addFreeBlock(leftover);
         }
-        // remove free block
-        freeList.remove(free);
     }
 
 
     /**
      * Merge free blocks
+     *
+     * @throws IOException
      */
     public void mergeFree()
+        throws IOException
     {
         while (canMerge())
         {
@@ -358,29 +359,32 @@ public class MemoryManager
         }
     }
 
+
     /**
      * Merges two free blocks into one block
+     *
+     * @throws IOException
      */
-    public void mergeBlocks() {
-        for (int i = 0; i < freeList.size(); i++) {
+    public void mergeBlocks()
+        throws IOException
+    {
+        int i = 0;
+        int firstPos = freeList.get(i).getPos();
+        int end = firstPos + freeList.get(i).getLength();
 
-            int firstPos = freeList.get(i).getPos();
-            int end = firstPos + freeList.get(i).getLength();
+        if ((i + 1) < freeList.size() && end == freeList.get(i + 1).getPos())
+        {
+            int length =
+                freeList.get(i).getLength() + freeList.get(i + 1).getLength();
 
-            if (i + 1 < freeList.size() &&
-                end == freeList.get(i + 1).getPos()) {
+            MemoryHandle merged = new MemoryHandle(firstPos, length);
 
-                int length = freeList.get(i).getLength()
-                    + freeList.get(i + 1).getLength();
-
-                MemoryHandle merged = new MemoryHandle(firstPos, length);
-
-                freeList.remove(i);
-                freeList.remove(i + 1);
-                addFreeBlock(merged);
-            }
+            freeList.remove(i);
+            freeList.remove(i);
+            addFreeBlock(merged);
         }
     }
+
 
     /**
      * Returns true if blocks can be merged in free list
@@ -394,12 +398,48 @@ public class MemoryManager
             int end = freeList.get(i).getPos() + freeList.get(i).getLength();
 
             // if the next block's position is the end of the block
-            if (i + 1 < freeList.size() && end == freeList.get(i + 1).getPos())
+            if ((i + 1) < freeList.size()
+                && end == freeList.get(i + 1).getPos())
             {
                 return true;
             }
         }
         return false;
+    }
+
+
+    /**
+     * Returns true if last block in memory file is free
+     *
+     * @return true if last block is free
+     * @throws IOException
+     */
+    public boolean isLastBlockFree()
+        throws IOException
+    {
+        MemoryHandle lastFree = freeList.get(freeList.size() - 1);
+
+        if (lastFree.getPos() + lastFree.getLength() == memFile.length())
+        {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Removes last free block from list and shortens file length
+     *
+     * @throws IOException
+     */
+    public void removeLastFree()
+        throws IOException
+    {
+        // shorten file length to position of last free block
+        memFile.setLength(freeList.get(freeList.size() - 1).getPos());
+
+        // remove last free block from free list
+        freeList.remove(freeList.get(freeList.size() - 1));
     }
 
 
@@ -411,9 +451,9 @@ public class MemoryManager
         String result = "Free Block List:";
         for (int i = 0; i < freeList.size(); i++)
         {
-            result += "\nFree Block " + i + " starts from Byte "
+            result += "\nFree Block " + (i + 1) + " starts from Byte "
                 + freeList.get(i).getPos() + " with length "
-                + freeList.get(i).getLength() + "\n";
+                + freeList.get(i).getLength();
         }
         System.out.println(result);
     }
